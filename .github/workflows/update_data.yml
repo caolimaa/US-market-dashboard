@@ -1,0 +1,38 @@
+name: Update Market Data
+
+on:
+  schedule:
+    # 23:00 UTC Sun–Fri = 07:00 HKT Mon–Sat (always after US market close)
+    - cron: '0 23 * * 0-5'
+  workflow_dispatch:   # ← adds a manual "Run workflow" button in GitHub UI
+
+jobs:
+  update-indices:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required to push data/indices.json back to the repo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install required packages
+        run: pip install yfinance pandas pytz
+
+      - name: Run data fetch script
+        run: python scripts/fetch_data.py
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/indices.json
+          # Only commits if the file actually changed (skips empty commits)
+          git diff --staged --quiet || \
+            git commit -m "data: auto-update indices $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
