@@ -1,6 +1,5 @@
 import yfinance as yf
 import pandas as pd
-import numpy as np
 import json
 import os
 import requests
@@ -16,12 +15,55 @@ INDICES = [
     {"ticker": "QQQ",  "name": "NASDAQ 100"},
 ]
 
+# ── Hardcoded S&P 500 universe (200 liquid stocks across all sectors) ─
+# Used to build the percentile distribution for RS Rating (1-99)
+SP500_UNIVERSE = [
+    # Technology
+    "AAPL","MSFT","NVDA","AVGO","ORCL","CRM","AMD","QCOM","TXN","AMAT",
+    "KLAC","LRCX","ADI","MU","SNPS","CDNS","FTNT","PANW","CRWD","NOW",
+    "ADBE","INTU","INTC","HPQ","HPE","CSCO","IBM","DELL","STX","WDC",
+    # Communication Services
+    "META","GOOGL","GOOG","NFLX","DIS","CMCSA","T","VZ","TMUS","CHTR",
+    "EA","TTWO","NWSA","OMC","IPG","LYV","WBD","PARA",
+    # Consumer Discretionary
+    "AMZN","TSLA","HD","MCD","NKE","SBUX","LOW","TJX","BKNG","CMG",
+    "MAR","HLT","ORLY","AZO","ROST","YUM","DHI","LEN","PHM","NVR",
+    "TSCO","EBAY","ETSY","BBY","DRI","LVS","MGM","WYNN","HAS","MHK",
+    # Consumer Staples
+    "WMT","COST","PG","KO","PEP","PM","MO","MDLZ","CL","GIS",
+    "KMB","SYY","ADM","MKC","K","HRL","CAG","CPB","CHD","CLX",
+    # Healthcare
+    "LLY","UNH","JNJ","ABBV","MRK","ABT","TMO","DHR","PFE","AMGN",
+    "GILD","ISRG","SYK","BDX","BSX","EW","ZBH","BAX","HOLX","RMD",
+    "IDXX","IQV","CRL","CTLT","VTRS","HUM","CVS","CI","CNC","MOH",
+    # Financials
+    "BRK-B","JPM","BAC","WFC","GS","MS","C","AXP","BLK","SCHW",
+    "CB","PGR","AIG","MET","PRU","AFL","TRV","ALL","HIG","WRB",
+    "V","MA","PYPL","COF","DFS","SYF","AMP","BEN","IVZ","TROW",
+    # Industrials
+    "CAT","DE","HON","UPS","RTX","LMT","GE","MMM","EMR","ETN",
+    "PH","ITW","ROK","CMI","PCAR","FDX","CSX","UNP","NSC","DAL",
+    "UAL","LUV","AAL","WM","RSG","FAST","GWW","XYL","IEX","AME",
+    # Energy
+    "XOM","CVX","COP","SLB","EOG","PXD","MPC","VLO","PSX","HAL",
+    "DVN","FANG","HES","APA","OXY","BKR","NOV","FTI",
+    # Materials
+    "LIN","APD","SHW","ECL","PPG","NEM","FCX","NUE","STLD","CF",
+    "MOS","ALB","CE","EMN","IFF","FMC","SON","PKG","IP","WRK",
+    # Utilities
+    "NEE","DUK","SO","D","AEP","EXC","SRE","XEL","ES","WEC",
+    "ETR","FE","PPL","EIX","PCG","AWK","AES","CMS","NI","PNW",
+    # Real Estate
+    "AMT","PLD","CCI","EQIX","PSA","O","WELL","DLR","SPG","AVB",
+    "EQR","MAA","UDR","CPT","ESS","EXR","VICI","CBRE","ARE","BXP",
+]
+
 # ── RS Rating helpers ─────────────────────────────────────────────────
 
 def calc_rs_raw(closes):
     """
     RS Score = 40% * P3 + 20% * P6 + 20% * P9 + 20% * P12
-    Using approx trading-day lookbacks: 3M=63, 6M=126, 9M=189, 12M=252
+    Lookbacks: 3M=63, 6M=126, 9M=189, 12M=252 trading days
     """
     c = closes.dropna().values
     n = len(c)
@@ -46,35 +88,13 @@ def raw_to_rating(raw_score, universe_scores):
 
 def build_universe():
     """
-    Download S&P 500 components from Wikipedia using a browser User-Agent
-    to avoid 403 blocks, then batch-fetch 1 year of closes.
-    Returns a list of raw RS scores for percentile comparison.
+    Batch-download 1 year of closes for the hardcoded S&P 500 universe,
+    compute each stock's raw RS score, return the full list of scores.
     """
-    print("[INFO] Fetching S&P 500 ticker list from Wikipedia…")
-    try:
-        headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/122.0.0.0 Safari/537.36"
-            )
-        }
-        resp = requests.get(
-            "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies",
-            headers=headers,
-            timeout=20
-        )
-        resp.raise_for_status()
-        table   = pd.read_html(resp.text)[0]
-        tickers = table["Symbol"].str.replace(".", "-", regex=False).tolist()
-    except Exception as e:
-        print(f"[WARN] Could not load S&P 500 list: {e}")
-        return []
-
-    print(f"[INFO] Batch-downloading {len(tickers)} S&P 500 stocks (1y)…")
+    print(f"[INFO] Batch-downloading {len(SP500_UNIVERSE)} universe stocks (1y)…")
     try:
         raw_uni = yf.download(
-            tickers,
+            SP500_UNIVERSE,
             period="1y",
             interval="1d",
             progress=False,
@@ -86,7 +106,7 @@ def build_universe():
         return []
 
     scores = []
-    for t in tickers:
+    for t in SP500_UNIVERSE:
         try:
             if isinstance(raw_uni.columns, pd.MultiIndex):
                 closes = raw_uni[t]["Close"].dropna()
