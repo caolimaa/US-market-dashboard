@@ -2,7 +2,6 @@ import yfinance as yf
 import pandas as pd
 import json
 import os
-import requests
 from datetime import datetime
 import pytz
 
@@ -16,7 +15,6 @@ INDICES = [
 ]
 
 # ── Hardcoded S&P 500 universe (200 liquid stocks across all sectors) ─
-# Used to build the percentile distribution for RS Rating (1-99)
 SP500_UNIVERSE = [
     # Technology
     "AAPL","MSFT","NVDA","AVGO","ORCL","CRM","AMD","QCOM","TXN","AMAT",
@@ -61,10 +59,7 @@ SP500_UNIVERSE = [
 # ── RS Rating helpers ─────────────────────────────────────────────────
 
 def calc_rs_raw(closes):
-    """
-    RS Score = 40% * P3 + 20% * P6 + 20% * P9 + 20% * P12
-    Lookbacks: 3M=63, 6M=126, 9M=189, 12M=252 trading days
-    """
+    """RS Score = 40%*P3 + 20%*P6 + 20%*P9 + 20%*P12"""
     c = closes.dropna().values
     n = len(c)
     if n < 64:
@@ -87,10 +82,7 @@ def raw_to_rating(raw_score, universe_scores):
     return max(1, min(99, round(pct * 98 + 1)))
 
 def build_universe():
-    """
-    Batch-download 1 year of closes for the hardcoded S&P 500 universe,
-    compute each stock's raw RS score, return the full list of scores.
-    """
+    """Batch-download universe stocks, return list of raw RS scores."""
     print(f"[INFO] Batch-downloading {len(SP500_UNIVERSE)} universe stocks (1y)…")
     try:
         raw_uni = yf.download(
@@ -121,10 +113,53 @@ def build_universe():
     print(f"[INFO] Universe built: {len(scores)} valid stocks")
     return scores
 
+# ── ATR% multiple from 50-MA helper ──────────────────────────────────
+
+def calc_atr_multiple(df, atr_len=14, ma_len=50):
+    """
+    Replicates the TradingView indicator by jfsrev:
+      A  = ATR% = ATR(14) / Close * 100
+      B  = % distance from SMA50 = (Close - SMA50) / SMA50 * 100
+      Result = B / A
+    Returns None if not enough data or ATR% is zero.
+    """
+    if len(df) < max(atr_len, ma_len) + 1:
+        return None
+
+    # True Range = max(H-L, |H-PrevC|, |L-PrevC|)
+    high  = df["High"]
+    low   = df["Low"]
+    close = df["Close"]
+    prev_close = close.shift(1)
+
+    tr = pd.concat([
+        high - low,
+        (high - prev_close).abs(),
+        (low  - prev_close).abs()
+    ], axis=1).max(axis=1)
+
+    # Wilder's smoothing (same as TradingView's ta.atr default)
+    atr = tr.ewm(alpha=1 / atr_len, adjust=False).mean()
+
+    sma50 = close.rolling(ma_len).mean()
+
+    last_close = float(close.iloc[-1])
+    last_atr   = float(atr.iloc[-1])
+    last_sma50 = float(sma50.iloc[-1])
+
+    if last_close == 0 or last_atr == 0 or pd.isna(last_sma50):
+        return None
+
+    atr_pct        = last_atr / last_close * 100          # A
+    pct_from_50ma  = (last_close - last_sma50) / last_sma50 * 100  # B
+    atr_multiple   = pct_from_50ma / atr_pct              # B / A
+
+    return round(atr_multiple, 2)
+
 
 os.makedirs("data", exist_ok=True)
 
-# ── Build comparison universe once ────────────────────────────────────
+# ── Build RS comparison universe once ────────────────────────────────
 universe_scores = build_universe()
 
 results = []
@@ -177,6 +212,9 @@ for item in INDICES:
         rs_raw    = calc_rs_raw(df["Close"])
         rs_rating = raw_to_rating(rs_raw, universe_scores)
 
+        # ── ATR% multiple from 50-MA ───────────────────────────────────
+        atr_multiple = calc_atr_multiple(df, atr_len=14, ma_len=50)
+
         results.append({
             "ticker":       ticker,
             "name":         item["name"],
@@ -187,9 +225,10 @@ for item in INDICES:
             "ema20":  ma_tag(price > float(last["EMA20"]),  float(last["EMA20"])  > float(prev["EMA20"])),
             "sma50":  ma_tag(price > float(last["SMA50"]),  float(last["SMA50"])  > float(prev["SMA50"])),
             "sma200": ma_tag(price > float(last["SMA200"]), float(last["SMA200"]) > float(prev["SMA200"])),
-            "rs_rating": rs_rating,
+            "rs_rating":    rs_rating,
+            "atr_multiple": atr_multiple,
         })
-        print(f"[OK]   {ticker}  RS={rs_rating}")
+        print(f"[OK]   {ticker}  RS={rs_rating}  ATRx={atr_multiple}")
 
     except Exception as exc:
         print(f"[ERR]  {ticker}: {exc}")
