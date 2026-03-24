@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import json
 import os
+import requests
 from datetime import datetime
 import pytz
 
@@ -28,7 +29,6 @@ def calc_rs_raw(closes):
         return None
     cur = c[-1]
     def perf(days):
-        # Price from 'days' trading days ago; cap at oldest available
         idx = min(days + 1, n)
         return cur / c[-idx] - 1
     p3  = perf(63)
@@ -46,12 +46,26 @@ def raw_to_rating(raw_score, universe_scores):
 
 def build_universe():
     """
-    Download S&P 500 components from Wikipedia, batch-fetch 1 year of closes,
-    return a list of their raw RS scores for percentile comparison.
+    Download S&P 500 components from Wikipedia using a browser User-Agent
+    to avoid 403 blocks, then batch-fetch 1 year of closes.
+    Returns a list of raw RS scores for percentile comparison.
     """
     print("[INFO] Fetching S&P 500 ticker list from Wikipedia…")
     try:
-        table  = pd.read_html("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")[0]
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/122.0.0.0 Safari/537.36"
+            )
+        }
+        resp = requests.get(
+            "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies",
+            headers=headers,
+            timeout=20
+        )
+        resp.raise_for_status()
+        table   = pd.read_html(resp.text)[0]
         tickers = table["Symbol"].str.replace(".", "-", regex=False).tolist()
     except Exception as e:
         print(f"[WARN] Could not load S&P 500 list: {e}")
