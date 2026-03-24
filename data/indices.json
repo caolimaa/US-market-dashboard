@@ -1,60 +1,65 @@
 {
-  "updated": "24 Mar 2026, 23:18 HKT",
+  "updated": "24 Mar 2026, 23:31 HKT",
   "indices": [
     {
       "ticker": "^VIX",
       "name": "Volatility (VIX)",
-      "price": 26.33,
-      "daily_chg": 0.69,
-      "intraday_chg": 1.62,
+      "price": 25.97,
+      "daily_chg": -0.69,
+      "intraday_chg": 0.23,
       "ema10": "above_up",
       "ema20": "above_up",
       "sma50": "above_up",
-      "sma200": "above_up"
+      "sma200": "above_up",
+      "rs_rating": null
     },
     {
       "ticker": "IWM",
       "name": "Russell 2000",
-      "price": 248.82,
-      "daily_chg": 0.55,
-      "intraday_chg": 1.35,
+      "price": 249.53,
+      "daily_chg": 0.84,
+      "intraday_chg": 1.64,
       "ema10": "above_up",
       "ema20": "below_down",
       "sma50": "below_down",
-      "sma200": "above_up"
+      "sma200": "above_up",
+      "rs_rating": null
     },
     {
       "ticker": "DIA",
       "name": "Dow Jones",
-      "price": 462.93,
-      "daily_chg": 0.21,
-      "intraday_chg": 0.98,
+      "price": 463.65,
+      "daily_chg": 0.36,
+      "intraday_chg": 1.14,
       "ema10": "below_down",
       "ema20": "below_down",
       "sma50": "below_down",
-      "sma200": "below_up"
+      "sma200": "above_up",
+      "rs_rating": null
     },
     {
       "ticker": "SPY",
       "name": "S&P 500",
-      "price": 655.55,
-      "daily_chg": 0.03,
-      "intraday_chg": 0.65,
+      "price": 656.33,
+      "daily_chg": 0.14,
+      "intraday_chg": 0.77,
       "ema10": "below_down",
       "ema20": "below_down",
       "sma50": "below_down",
-      "sma200": "below_up"
+      "sma200": "below_up",
+      "rs_rating": null
     },
     {
       "ticker": "QQQ",
       "name": "NASDAQ 100",
-      "price": 586.6,
-      "daily_chg": -0.24,
-      "intraday_chg": 0.3,
+      "price": 587.16,
+      "daily_chg": -0.14,
+      "intraday_chg": 0.4,
       "ema10": "below_down",
       "ema20": "below_down",
       "sma50": "below_down",
-      "sma200": "below_up"
+      "sma200": "below_up",
+      "rs_rating": null
     }
   ]
 }
