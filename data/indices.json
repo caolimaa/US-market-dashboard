@@ -1,70 +1,70 @@
 {
-  "updated": "25 Mar 2026, 00:01 HKT",
+  "updated": "25 Mar 2026, 07:59 HKT",
   "indices": [
     {
       "ticker": "^VIX",
       "name": "Volatility (VIX)",
-      "price": 25.79,
-      "daily_chg": -1.38,
-      "intraday_chg": -0.46,
+      "price": 26.95,
+      "daily_chg": 3.06,
+      "intraday_chg": 4.01,
       "ema10": "above_up",
       "ema20": "above_up",
       "sma50": "above_up",
       "sma200": "above_up",
-      "rs_rating": 94,
-      "atr_multiple": 1.6
+      "rs_rating": 96,
+      "atr_multiple": 2.02
     },
     {
       "ticker": "IWM",
       "name": "Russell 2000",
-      "price": 248.63,
-      "daily_chg": 0.48,
-      "intraday_chg": 1.27,
+      "price": 248.78,
+      "daily_chg": 0.54,
+      "intraday_chg": 1.33,
       "ema10": "above_up",
       "ema20": "below_down",
       "sma50": "below_down",
       "sma200": "above_up",
-      "rs_rating": 58,
-      "atr_multiple": -1.7
+      "rs_rating": 60,
+      "atr_multiple": -1.67
     },
     {
       "ticker": "DIA",
       "name": "Dow Jones",
-      "price": 462.26,
-      "daily_chg": 0.06,
-      "intraday_chg": 0.84,
+      "price": 461.17,
+      "daily_chg": -0.17,
+      "intraday_chg": 0.6,
       "ema10": "below_down",
       "ema20": "below_down",
       "sma50": "below_down",
       "sma200": "below_up",
       "rs_rating": 48,
-      "atr_multiple": -3.01
+      "atr_multiple": -3.15
     },
     {
       "ticker": "SPY",
       "name": "S&P 500",
-      "price": 654.93,
-      "daily_chg": -0.07,
-      "intraday_chg": 0.55,
+      "price": 653.18,
+      "daily_chg": -0.34,
+      "intraday_chg": 0.29,
       "ema10": "below_down",
       "ema20": "below_down",
       "sma50": "below_down",
       "sma200": "below_up",
       "rs_rating": 48,
-      "atr_multiple": -2.59
+      "atr_multiple": -2.75
     },
     {
       "ticker": "QQQ",
       "name": "NASDAQ 100",
-      "price": 585.8,
-      "daily_chg": -0.37,
-      "intraday_chg": 0.17,
+      "price": 583.98,
+      "daily_chg": -0.68,
+      "intraday_chg": -0.14,
       "ema10": "below_down",
       "ema20": "below_down",
       "sma50": "below_down",
       "sma200": "below_up",
-      "rs_rating": 47,
-      "atr_multiple": -2.23
+      "rs_rating": 46,
+      "atr_multiple": -2.39
     }
   ]
 }
