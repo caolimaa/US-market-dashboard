@@ -1,65 +1,70 @@
 {
-  "updated": "24 Mar 2026, 23:43 HKT",
+  "updated": "24 Mar 2026, 23:50 HKT",
   "indices": [
     {
       "ticker": "^VIX",
       "name": "Volatility (VIX)",
-      "price": 25.79,
-      "daily_chg": -1.38,
-      "intraday_chg": -0.46,
+      "price": 25.88,
+      "daily_chg": -1.03,
+      "intraday_chg": -0.12,
       "ema10": "above_up",
       "ema20": "above_up",
       "sma50": "above_up",
       "sma200": "above_up",
-      "rs_rating": 94
+      "rs_rating": 94,
+      "atr_multiple": 1.64
     },
     {
       "ticker": "IWM",
       "name": "Russell 2000",
-      "price": 249.47,
-      "daily_chg": 0.82,
-      "intraday_chg": 1.61,
+      "price": 249.63,
+      "daily_chg": 0.88,
+      "intraday_chg": 1.68,
       "ema10": "above_up",
       "ema20": "below_down",
       "sma50": "below_down",
       "sma200": "above_up",
-      "rs_rating": 58
+      "rs_rating": 58,
+      "atr_multiple": -1.54
     },
     {
       "ticker": "DIA",
       "name": "Dow Jones",
-      "price": 463.26,
-      "daily_chg": 0.28,
-      "intraday_chg": 1.06,
+      "price": 463.76,
+      "daily_chg": 0.39,
+      "intraday_chg": 1.16,
       "ema10": "below_down",
       "ema20": "below_down",
       "sma50": "below_down",
       "sma200": "above_up",
-      "rs_rating": 45
+      "rs_rating": 45,
+      "atr_multiple": -2.83
     },
     {
       "ticker": "SPY",
       "name": "S&P 500",
-      "price": 656.05,
-      "daily_chg": 0.1,
-      "intraday_chg": 0.73,
+      "price": 656.64,
+      "daily_chg": 0.19,
+      "intraday_chg": 0.82,
       "ema10": "below_down",
       "ema20": "below_down",
       "sma50": "below_down",
       "sma200": "below_up",
-      "rs_rating": 45
+      "rs_rating": 45,
+      "atr_multiple": -2.43
     },
     {
       "ticker": "QQQ",
       "name": "NASDAQ 100",
-      "price": 586.74,
-      "daily_chg": -0.21,
-      "intraday_chg": 0.33,
+      "price": 587.21,
+      "daily_chg": -0.13,
+      "intraday_chg": 0.41,
       "ema10": "below_down",
       "ema20": "below_down",
       "sma50": "below_down",
       "sma200": "below_up",
-      "rs_rating": 44
+      "rs_rating": 44,
+      "atr_multiple": -2.1
     }
   ]
 }
