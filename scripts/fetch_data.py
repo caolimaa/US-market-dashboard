@@ -7,12 +7,18 @@ import pytz
 
 # ── Indices ───────────────────────────────────────────────────────────
 INDICES = [
-    {"ticker": "^VIX", "name": "Volatility (VIX)"},
-    {"ticker": "IWM",  "name": "Russell 2000"},
-    {"ticker": "DIA",  "name": "Dow Jones"},
-    {"ticker": "SPY",  "name": "S&P 500"},
-    {"ticker": "QQQ",  "name": "NASDAQ 100"},
+    {"ticker": "^VIX",  "name": "Volatility (VIX)"},
+    {"ticker": "IWM",   "name": "Russell 2000"},
+    {"ticker": "DIA",   "name": "Dow Jones"},
+    {"ticker": "SPY",   "name": "S&P 500"},
+    {"ticker": "QQQ",   "name": "NASDAQ 100"},
+    {"ticker": "RSP",   "name": "S&P 500 Equal Weight"},
+    {"ticker": "EDOW",  "name": "Dow 30 Equal Weight"},
+    {"ticker": "QQQE",  "name": "NASDAQ 100 Equal Weight"},
+    {"ticker": "DXY",   "yf_ticker": "DX-Y.NYB", "name": "US Dollar Index"},
+    {"ticker": "US10Y", "yf_ticker": "^TNX",      "name": "10Y Treasury Yield"},
 ]
+
 
 # ── Cap-weighted Sectors ──────────────────────────────────────────────
 SECTORS = [
