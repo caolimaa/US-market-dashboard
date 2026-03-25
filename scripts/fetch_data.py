@@ -5,13 +5,28 @@ import os
 from datetime import datetime
 import pytz
 
-# ── Tickers to track ──────────────────────────────────────────────────
+# ── Indices tickers ───────────────────────────────────────────────────
 INDICES = [
     {"ticker": "^VIX", "name": "Volatility (VIX)"},
     {"ticker": "IWM",  "name": "Russell 2000"},
     {"ticker": "DIA",  "name": "Dow Jones"},
     {"ticker": "SPY",  "name": "S&P 500"},
     {"ticker": "QQQ",  "name": "NASDAQ 100"},
+]
+
+# ── Sector ETF tickers ────────────────────────────────────────────────
+SECTORS = [
+    {"ticker": "XLE",  "name": "Energy"},
+    {"ticker": "XLU",  "name": "Utilities"},
+    {"ticker": "XLI",  "name": "Industrials"},
+    {"ticker": "XLB",  "name": "Materials"},
+    {"ticker": "XLP",  "name": "Consumer Staples"},
+    {"ticker": "XLV",  "name": "Health Care"},
+    {"ticker": "XLK",  "name": "Technology"},
+    {"ticker": "XLC",  "name": "Communication Svcs"},
+    {"ticker": "XLRE", "name": "Real Estate"},
+    {"ticker": "XLF",  "name": "Financials"},
+    {"ticker": "XLY",  "name": "Consumer Discret."},
 ]
 
 # ── ~490 S&P 500 universe for RS Rating percentile ────────────────────
@@ -82,7 +97,7 @@ SP500_UNIVERSE = [
 ]
 
 # ─────────────────────────────────────────────────────────────────────
-# Helper: Wilder ATR series
+# Shared helpers
 # ─────────────────────────────────────────────────────────────────────
 def calc_atr_series(df, atr_len=14):
     high       = df["High"]
@@ -96,9 +111,6 @@ def calc_atr_series(df, atr_len=14):
     ], axis=1).max(axis=1)
     return tr.ewm(alpha=1 / atr_len, adjust=False).mean()
 
-# ─────────────────────────────────────────────────────────────────────
-# RS Rating helpers
-# ─────────────────────────────────────────────────────────────────────
 def calc_rs_raw(closes):
     c = closes.dropna().values
     n = len(c)
@@ -125,11 +137,8 @@ def build_universe():
     try:
         raw_uni = yf.download(
             SP500_UNIVERSE,
-            period="1y",
-            interval="1d",
-            progress=False,
-            auto_adjust=True,
-            group_by="ticker"
+            period="1y", interval="1d",
+            progress=False, auto_adjust=True, group_by="ticker"
         )
     except Exception as e:
         print(f"[WARN] Universe download failed: {e}")
@@ -147,9 +156,6 @@ def build_universe():
     print(f"[INFO] Universe built: {len(scores)} valid stocks")
     return scores
 
-# ─────────────────────────────────────────────────────────────────────
-# ATR% multiple from 50-MA
-# ─────────────────────────────────────────────────────────────────────
 def calc_atr_multiple(df, atr_len=14, ma_len=50):
     if len(df) < max(atr_len, ma_len) + 1:
         return None
@@ -164,148 +170,139 @@ def calc_atr_multiple(df, atr_len=14, ma_len=50):
     pct_from_50ma = (last_close - last_sma50) / last_sma50 * 100
     return round(pct_from_50ma / atr_pct, 2)
 
-# ─────────────────────────────────────────────────────────────────────
-# VARS — Volatility Adjusted Relative Strength histogram
-# Settings: lookback=50, ma_len=20, atr_len=14, n_bars=20
-# ─────────────────────────────────────────────────────────────────────
 def calc_vars_history(df_stock, df_spy, lookback=50, ma_len=20, atr_len=14, n_bars=20):
-    """
-    Formula (per Oanda/jfsrev documentation):
-      daily_vars  = (dClose_stock / ATR_stock) - (dClose_spy / ATR_spy)
-      VARS line   = rolling_sum(daily_vars, lookback)
-      MA line     = SMA(ma_len) of VARS line
-    Returns list of last n_bars dicts: [{v: float, m: float}, ...]
-    """
-    # Align both series on common trading dates
-    common = df_stock.index.intersection(df_spy.index)
+    common  = df_stock.index.intersection(df_spy.index)
     min_len = lookback + ma_len + n_bars + 5
     if len(common) < min_len:
         return None
-
     s = df_stock.loc[common][["High","Low","Close"]].copy()
     b = df_spy.loc[common][["High","Low","Close"]].copy()
-
-    atr_s = calc_atr_series(s, atr_len)
-    atr_b = calc_atr_series(b, atr_len)
-
-    # Vol-adjusted daily changes (replace 0 ATR with NaN to avoid div/0)
-    delta_s = s["Close"].diff() / atr_s.replace(0, float("nan"))
-    delta_b = b["Close"].diff() / atr_b.replace(0, float("nan"))
-
+    atr_s  = calc_atr_series(s, atr_len)
+    atr_b  = calc_atr_series(b, atr_len)
+    delta_s    = s["Close"].diff() / atr_s.replace(0, float("nan"))
+    delta_b    = b["Close"].diff() / atr_b.replace(0, float("nan"))
     daily_vars = (delta_s - delta_b).fillna(0)
-
-    vars_line = daily_vars.rolling(lookback).sum()
-    ma_line   = vars_line.rolling(ma_len).mean()
-
-    # Collect last n_bars valid rows
-    combined = pd.DataFrame({"v": vars_line, "m": ma_line}).dropna()
+    vars_line  = daily_vars.rolling(lookback).sum()
+    ma_line    = vars_line.rolling(ma_len).mean()
+    combined   = pd.DataFrame({"v": vars_line, "m": ma_line}).dropna()
     if len(combined) < n_bars:
         return None
-
     tail = combined.iloc[-n_bars:]
     return [{"v": round(float(r.v), 4), "m": round(float(r.m), 4)}
             for _, r in tail.iterrows()]
+
+# ─────────────────────────────────────────────────────────────────────
+# Core function: process a list of ticker dicts → list of result dicts
+# ─────────────────────────────────────────────────────────────────────
+def process_tickers(ticker_list, df_spy, universe_scores):
+    results = []
+    for item in ticker_list:
+        ticker = item["ticker"]
+        try:
+            raw = yf.download(ticker, period="1y", interval="1d",
+                              progress=False, auto_adjust=True)
+            if raw.empty or len(raw) < 50:
+                print(f"[SKIP] {ticker}: not enough data ({len(raw)} rows)")
+                continue
+            if isinstance(raw.columns, pd.MultiIndex):
+                raw.columns = raw.columns.get_level_values(0)
+
+            df = raw[["Open","High","Low","Close"]].copy()
+            df.dropna(subset=["Close"], inplace=True)
+
+            df["EMA10"]  = df["Close"].ewm(span=10,  adjust=False).mean()
+            df["EMA20"]  = df["Close"].ewm(span=20,  adjust=False).mean()
+            df["SMA50"]  = df["Close"].rolling(50).mean()
+            df["SMA200"] = df["Close"].rolling(200).mean()
+
+            last = df.iloc[-1]
+            prev = df.iloc[-2]
+
+            price      = float(last["Close"])
+            prev_close = float(prev["Close"])
+            open_price = float(last["Open"])
+
+            daily_chg    = round((price - prev_close) / prev_close * 100, 2)
+            intraday_chg = round((price - open_price)  / open_price * 100, 2) \
+                           if open_price != 0 else 0.0
+
+            def ma_tag(price_above_ma, ma_is_rising):
+                if price_above_ma and ma_is_rising:       return "above_up"
+                elif price_above_ma and not ma_is_rising: return "above_down"
+                elif not price_above_ma and ma_is_rising: return "below_up"
+                else:                                     return "below_down"
+
+            rs_raw    = calc_rs_raw(df["Close"])
+            rs_rating = raw_to_rating(rs_raw, universe_scores)
+
+            atr_multiple = calc_atr_multiple(df, atr_len=14, ma_len=50)
+
+            vars_history = None
+            if df_spy is not None:
+                vars_history = calc_vars_history(
+                    df[["High","Low","Close"]], df_spy,
+                    lookback=50, ma_len=20, atr_len=14, n_bars=20
+                )
+
+            results.append({
+                "ticker":       ticker,
+                "name":         item["name"],
+                "price":        round(price, 2),
+                "daily_chg":    daily_chg,
+                "intraday_chg": intraday_chg,
+                "ema10":  ma_tag(price > float(last["EMA10"]),  float(last["EMA10"])  > float(prev["EMA10"])),
+                "ema20":  ma_tag(price > float(last["EMA20"]),  float(last["EMA20"])  > float(prev["EMA20"])),
+                "sma50":  ma_tag(price > float(last["SMA50"]),  float(last["SMA50"])  > float(prev["SMA50"])),
+                "sma200": ma_tag(price > float(last["SMA200"]), float(last["SMA200"]) > float(prev["SMA200"])),
+                "rs_rating":    rs_rating,
+                "atr_multiple": atr_multiple,
+                "vars_history": vars_history,
+            })
+            print(f"[OK]   {ticker}  RS={rs_rating}  ATRx={atr_multiple}  VARS={'ok' if vars_history else 'N/A'}")
+
+        except Exception as exc:
+            print(f"[ERR]  {ticker}: {exc}")
+
+    return results
 
 
 # ═════════════════════════════════════════════════════════════════════
 os.makedirs("data", exist_ok=True)
 
-# ── Pre-fetch SPY as VARS benchmark ───────────────────────────────────
-print("[INFO] Fetching SPY benchmark data for VARS…")
+# ── Pre-fetch SPY benchmark ───────────────────────────────────────────
+print("[INFO] Fetching SPY benchmark for VARS…")
 try:
     spy_raw = yf.download("SPY", period="1y", interval="1d",
                           progress=False, auto_adjust=True)
     if isinstance(spy_raw.columns, pd.MultiIndex):
         spy_raw.columns = spy_raw.columns.get_level_values(0)
     df_spy = spy_raw[["High","Low","Close"]].dropna()
-    print(f"[INFO] SPY benchmark ready ({len(df_spy)} rows)")
+    print(f"[INFO] SPY ready ({len(df_spy)} rows)")
 except Exception as e:
     df_spy = None
-    print(f"[WARN] SPY fetch failed: {e} — VARS will show N/A")
+    print(f"[WARN] SPY fetch failed: {e}")
 
-# ── Build RS comparison universe ──────────────────────────────────────
+# ── Build RS universe ─────────────────────────────────────────────────
 universe_scores = build_universe()
 
-results = []
+# ── Process both lists ────────────────────────────────────────────────
+print("\n── Indices ──────────────────────────────────────────")
+indices_results = process_tickers(INDICES, df_spy, universe_scores)
 
-for item in INDICES:
-    ticker = item["ticker"]
-    try:
-        raw = yf.download(ticker, period="1y", interval="1d",
-                          progress=False, auto_adjust=True)
+print("\n── Sectors ──────────────────────────────────────────")
+sectors_results = process_tickers(SECTORS, df_spy, universe_scores)
 
-        if raw.empty or len(raw) < 50:
-            print(f"[SKIP] {ticker}: not enough data ({len(raw)} rows)")
-            continue
-
-        if isinstance(raw.columns, pd.MultiIndex):
-            raw.columns = raw.columns.get_level_values(0)
-
-        df = raw[["Open","High","Low","Close"]].copy()
-        df.dropna(subset=["Close"], inplace=True)
-
-        # ── Moving averages ───────────────────────────────────────────
-        df["EMA10"]  = df["Close"].ewm(span=10,  adjust=False).mean()
-        df["EMA20"]  = df["Close"].ewm(span=20,  adjust=False).mean()
-        df["SMA50"]  = df["Close"].rolling(50).mean()
-        df["SMA200"] = df["Close"].rolling(200).mean()
-
-        last = df.iloc[-1]
-        prev = df.iloc[-2]
-
-        price      = float(last["Close"])
-        prev_close = float(prev["Close"])
-        open_price = float(last["Open"])
-
-        daily_chg    = round((price - prev_close) / prev_close * 100, 2)
-        intraday_chg = round((price - open_price)  / open_price * 100, 2) \
-                       if open_price != 0 else 0.0
-
-        def ma_tag(price_above_ma, ma_is_rising):
-            if price_above_ma and ma_is_rising:       return "above_up"
-            elif price_above_ma and not ma_is_rising: return "above_down"
-            elif not price_above_ma and ma_is_rising: return "below_up"
-            else:                                     return "below_down"
-
-        # ── RS Rating ─────────────────────────────────────────────────
-        rs_raw    = calc_rs_raw(df["Close"])
-        rs_rating = raw_to_rating(rs_raw, universe_scores)
-
-        # ── ATR% multiple from 50-MA ──────────────────────────────────
-        atr_multiple = calc_atr_multiple(df, atr_len=14, ma_len=50)
-
-        # ── VARS histogram (last 20 bars) ─────────────────────────────
-        vars_history = None
-        if df_spy is not None:
-            vars_history = calc_vars_history(
-                df[["High","Low","Close"]],
-                df_spy,
-                lookback=50, ma_len=20, atr_len=14, n_bars=20
-            )
-
-        results.append({
-            "ticker":       ticker,
-            "name":         item["name"],
-            "price":        round(price, 2),
-            "daily_chg":    daily_chg,
-            "intraday_chg": intraday_chg,
-            "ema10":  ma_tag(price > float(last["EMA10"]),  float(last["EMA10"])  > float(prev["EMA10"])),
-            "ema20":  ma_tag(price > float(last["EMA20"]),  float(last["EMA20"])  > float(prev["EMA20"])),
-            "sma50":  ma_tag(price > float(last["SMA50"]),  float(last["SMA50"])  > float(prev["SMA50"])),
-            "sma200": ma_tag(price > float(last["SMA200"]), float(last["SMA200"]) > float(prev["SMA200"])),
-            "rs_rating":    rs_rating,
-            "atr_multiple": atr_multiple,
-            "vars_history": vars_history,
-        })
-        print(f"[OK]   {ticker}  RS={rs_rating}  ATRx={atr_multiple}  VARS={'ok' if vars_history else 'N/A'}")
-
-    except Exception as exc:
-        print(f"[ERR]  {ticker}: {exc}")
-
+# ── Save to JSON ──────────────────────────────────────────────────────
 hkt     = pytz.timezone("Asia/Hong_Kong")
 updated = datetime.now(hkt).strftime("%d %b %Y, %H:%M HKT")
 
 with open("data/indices.json", "w") as fh:
-    json.dump({"updated": updated, "indices": results}, fh, indent=2)
+    json.dump({
+        "updated": updated,
+        "indices": indices_results,
+        "sectors": sectors_results,
+    }, fh, indent=2)
 
-print(f"\n✅  Saved {len(results)} tickers → data/indices.json  ({updated})")
+print(f"\n✅  Saved → data/indices.json  ({updated})")
+print(f"    Indices : {len(indices_results)} tickers")
+print(f"    Sectors : {len(sectors_results)} tickers")
