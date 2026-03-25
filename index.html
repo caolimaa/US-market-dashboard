@@ -237,15 +237,40 @@
   <div class="legend" id="commodities-legend"></div>
 </div>
 
+<!-- ══════════════════════════ THEMATIC ══════════════════════════ -->
+<div class="section-card">
+  <div class="section-title">🎯 Thematic — EOD Snapshot · Prev Close</div>
+  <div class="table-wrap"><table id="thematic-table">
+    <thead><tr>
+      <th data-col="ticker"       data-type="string">Ticker</th>
+      <th data-col="price"        data-type="number">Price</th>
+      <th data-col="daily_chg"    data-type="number">Daily Chg</th>
+      <th data-col="intraday_chg" data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open → Close)</small></th>
+      <th data-col="ema10"        data-type="ma">EMA 10</th>
+      <th data-col="ema20"        data-type="ma">EMA 20</th>
+      <th data-col="sma50"        data-type="ma">SMA 50</th>
+      <th data-col="sma200"       data-type="ma">SMA 200</th>
+      <th data-col="atr_multiple" data-type="number">ATRx 50-MA<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(ATR14 / SMA50)</small></th>
+      <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
+      <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
+    </tr></thead>
+    <tbody id="thematic-body"><tr><td colspan="11" class="loading-msg">⏳ Loading…</td></tr></tbody>
+  </table></div>
+  <div class="legend" id="thematic-legend"></div>
+</div>
+
+  
 <script>
   const MA_RANK = { above_up: 4, above_down: 3, below_up: 2, below_down: 1 };
 
-  const state = {
+const state = {
     indices:     { data: [], sortCol: null, sortDir: 'asc' },
     sectors:     { data: [], sortCol: null, sortDir: 'asc' },
     sectors_ew:  { data: [], sortCol: null, sortDir: 'asc' },
     commodities: { data: [], sortCol: null, sortDir: 'asc' },
-  };
+    thematic:    { data: [], sortCol: null, sortDir: 'asc' },
+};
+
 
   function fmtChg(val) {
     if (val == null) return '<span class="chg chg-zero">N/A</span>';
@@ -426,12 +451,14 @@
       document.getElementById('updated-time').textContent =
         '🕒 Last updated: ' + (json.updated || 'unknown');
 
-      const sections = [
-        { key: 'indices',     jsonKey: 'indices',     tableId: 'indices-table',     bodyId: 'indices-body',     legendId: 'indices-legend'     },
-        { key: 'sectors',     jsonKey: 'sectors',     tableId: 'sectors-table',     bodyId: 'sectors-body',     legendId: 'sectors-legend'     },
-        { key: 'sectors_ew',  jsonKey: 'sectors_ew',  tableId: 'sectors-ew-table',  bodyId: 'sectors-ew-body',  legendId: 'sectors-ew-legend'  },
-        { key: 'commodities', jsonKey: 'commodities', tableId: 'commodities-table', bodyId: 'commodities-body', legendId: 'commodities-legend' },
-      ];
+const sections = [
+    { key: 'indices',     jsonKey: 'indices',     tableId: 'indices-table',     bodyId: 'indices-body',     legendId: 'indices-legend'     },
+    { key: 'sectors',     jsonKey: 'sectors',     tableId: 'sectors-table',     bodyId: 'sectors-body',     legendId: 'sectors-legend'     },
+    { key: 'sectors_ew',  jsonKey: 'sectors_ew',  tableId: 'sectors-ew-table',  bodyId: 'sectors-ew-body',  legendId: 'sectors-ew-legend'  },
+    { key: 'commodities', jsonKey: 'commodities', tableId: 'commodities-table', bodyId: 'commodities-body', legendId: 'commodities-legend' },
+    { key: 'thematic',    jsonKey: 'thematic',    tableId: 'thematic-table',    bodyId: 'thematic-body',    legendId: 'thematic-legend'    },
+];
+
 
       sections.forEach(({ key, jsonKey, tableId, bodyId, legendId }) => {
         if (json[jsonKey] && json[jsonKey].length > 0) {
@@ -445,18 +472,21 @@
       });
 
     } catch (err) {
-      ['indices-body','sectors-body','sectors-ew-body','commodities-body'].forEach(id => {
-        document.getElementById(id).innerHTML =
-          `<tr><td colspan="11" class="loading-msg">❌ Error: ${err.message}</td></tr>`;
-      });
+['indices-body','sectors-body','sectors-ew-body','commodities-body','thematic-body'].forEach(id => {
+    document.getElementById(id).innerHTML =
+        `<tr><td colspan="11" class="loading-msg">❌ Error: ${err.message}</td></tr>`;
+});
+
     }
   }
 
-  initSorting('indices-table',     'indices-body',     'indices');
-  initSorting('sectors-table',     'sectors-body',     'sectors');
-  initSorting('sectors-ew-table',  'sectors-ew-body',  'sectors_ew');
-  initSorting('commodities-table', 'commodities-body', 'commodities');
-  loadData();
+initSorting('indices-table',     'indices-body',     'indices');
+initSorting('sectors-table',     'sectors-body',     'sectors');
+initSorting('sectors-ew-table',  'sectors-ew-body',  'sectors_ew');
+initSorting('commodities-table', 'commodities-body', 'commodities');
+initSorting('thematic-table',    'thematic-body',    'thematic');
+loadData();
+
 </script>
 
 </body>
