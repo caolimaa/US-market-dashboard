@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 import pytz
 
-# ── Indices tickers ───────────────────────────────────────────────────
+# ── Indices ───────────────────────────────────────────────────────────
 INDICES = [
     {"ticker": "^VIX", "name": "Volatility (VIX)"},
     {"ticker": "IWM",  "name": "Russell 2000"},
@@ -14,7 +14,7 @@ INDICES = [
     {"ticker": "QQQ",  "name": "NASDAQ 100"},
 ]
 
-# ── Sector ETF tickers ────────────────────────────────────────────────
+# ── Cap-weighted Sectors ──────────────────────────────────────────────
 SECTORS = [
     {"ticker": "XLE",  "name": "Energy"},
     {"ticker": "XLU",  "name": "Utilities"},
@@ -29,7 +29,7 @@ SECTORS = [
     {"ticker": "XLY",  "name": "Consumer Discret."},
 ]
 
-# ── Equal-Weight Sector ETF tickers ───────────────────────────────────
+# ── Equal-Weight Sectors ──────────────────────────────────────────────
 SECTORS_EW = [
     {"ticker": "RSPT",  "name": "EW Technology"},
     {"ticker": "RSPC",  "name": "EW Consumer Discret."},
@@ -42,6 +42,23 @@ SECTORS_EW = [
     {"ticker": "RSPM",  "name": "EW Materials"},
     {"ticker": "RSPS",  "name": "EW Energy"},
     {"ticker": "RSPG",  "name": "EW Communication Svcs"},
+]
+
+# ── Commodities & Crypto ──────────────────────────────────────────────
+# `ticker`    = display name shown in dashboard
+# `yf_ticker` = symbol used for Yahoo Finance download
+COMMODITIES_CRYPTO = [
+    {"ticker": "XAGUSD", "yf_ticker": "SI=F",    "name": "Silver"},
+    {"ticker": "XPTUSD", "yf_ticker": "PL=F",    "name": "Platinum"},
+    {"ticker": "XAUUSD", "yf_ticker": "GC=F",    "name": "Gold"},
+    {"ticker": "XPDUSD", "yf_ticker": "PA=F",    "name": "Palladium"},
+    {"ticker": "WTI",    "yf_ticker": "CL=F",    "name": "Crude Oil (WTI)"},
+    {"ticker": "ALIUSD", "yf_ticker": "ALI=F",   "name": "Aluminum"},
+    {"ticker": "XNGUSD", "yf_ticker": "NG=F",    "name": "Natural Gas"},
+    {"ticker": "XCUUSD", "yf_ticker": "HG=F",    "name": "Copper"},
+    {"ticker": "SOLUSD", "yf_ticker": "SOL-USD", "name": "Solana"},
+    {"ticker": "BTCUSD", "yf_ticker": "BTC-USD", "name": "Bitcoin"},
+    {"ticker": "ETHUSD", "yf_ticker": "ETH-USD", "name": "Ethereum"},
 ]
 
 # ── ~490 S&P 500 universe for RS Rating percentile ────────────────────
@@ -151,8 +168,7 @@ def build_universe():
     print(f"[INFO] Batch-downloading {len(SP500_UNIVERSE)} universe stocks (1y)…")
     try:
         raw_uni = yf.download(
-            SP500_UNIVERSE,
-            period="1y", interval="1d",
+            SP500_UNIVERSE, period="1y", interval="1d",
             progress=False, auto_adjust=True, group_by="ticker"
         )
     except Exception as e:
@@ -206,15 +222,21 @@ def calc_vars_history(df_stock, df_spy, lookback=50, ma_len=20, atr_len=14, n_ba
     return [{"v": round(float(r.v), 4), "m": round(float(r.m), 4)}
             for _, r in tail.iterrows()]
 
+# ─────────────────────────────────────────────────────────────────────
+# Core processing function
+# `yf_ticker` field overrides `ticker` for the Yahoo Finance download
+# while `ticker` is always used as the display label in the dashboard
+# ─────────────────────────────────────────────────────────────────────
 def process_tickers(ticker_list, df_spy, universe_scores):
     results = []
     for item in ticker_list:
-        ticker = item["ticker"]
+        display_ticker = item["ticker"]
+        dl_ticker      = item.get("yf_ticker", display_ticker)  # ← key change
         try:
-            raw = yf.download(ticker, period="1y", interval="1d",
+            raw = yf.download(dl_ticker, period="1y", interval="1d",
                               progress=False, auto_adjust=True)
             if raw.empty or len(raw) < 50:
-                print(f"[SKIP] {ticker}: not enough data ({len(raw)} rows)")
+                print(f"[SKIP] {display_ticker} ({dl_ticker}): not enough data ({len(raw)} rows)")
                 continue
             if isinstance(raw.columns, pd.MultiIndex):
                 raw.columns = raw.columns.get_level_values(0)
@@ -235,7 +257,7 @@ def process_tickers(ticker_list, df_spy, universe_scores):
             open_price = float(last["Open"])
 
             daily_chg    = round((price - prev_close) / prev_close * 100, 2)
-            intraday_chg = round((price - open_price)  / open_price * 100, 2) \
+            intraday_chg = round((price - open_price) / open_price * 100, 2) \
                            if open_price != 0 else 0.0
 
             def ma_tag(price_above_ma, ma_is_rising):
@@ -257,7 +279,7 @@ def process_tickers(ticker_list, df_spy, universe_scores):
                 )
 
             results.append({
-                "ticker":       ticker,
+                "ticker":       display_ticker,
                 "name":         item["name"],
                 "price":        round(price, 2),
                 "daily_chg":    daily_chg,
@@ -270,10 +292,10 @@ def process_tickers(ticker_list, df_spy, universe_scores):
                 "atr_multiple": atr_multiple,
                 "vars_history": vars_history,
             })
-            print(f"[OK]   {ticker}  RS={rs_rating}  ATRx={atr_multiple}  VARS={'ok' if vars_history else 'N/A'}")
+            print(f"[OK]   {display_ticker}  RS={rs_rating}  ATRx={atr_multiple}  VARS={'ok' if vars_history else 'N/A'}")
 
         except Exception as exc:
-            print(f"[ERR]  {ticker}: {exc}")
+            print(f"[ERR]  {display_ticker} ({dl_ticker}): {exc}")
 
     return results
 
@@ -304,18 +326,23 @@ sectors_results = process_tickers(SECTORS, df_spy, universe_scores)
 print("\n── EW Sectors ───────────────────────────────────────")
 sectors_ew_results = process_tickers(SECTORS_EW, df_spy, universe_scores)
 
+print("\n── Commodities & Crypto ─────────────────────────────")
+commodities_results = process_tickers(COMMODITIES_CRYPTO, df_spy, universe_scores)
+
 hkt     = pytz.timezone("Asia/Hong_Kong")
 updated = datetime.now(hkt).strftime("%d %b %Y, %H:%M HKT")
 
 with open("data/indices.json", "w") as fh:
     json.dump({
-        "updated":    updated,
-        "indices":    indices_results,
-        "sectors":    sectors_results,
-        "sectors_ew": sectors_ew_results,
+        "updated":      updated,
+        "indices":      indices_results,
+        "sectors":      sectors_results,
+        "sectors_ew":   sectors_ew_results,
+        "commodities":  commodities_results,
     }, fh, indent=2)
 
 print(f"\n✅  Saved → data/indices.json  ({updated})")
-print(f"    Indices    : {len(indices_results)} tickers")
-print(f"    Sectors    : {len(sectors_results)} tickers")
-print(f"    EW Sectors : {len(sectors_ew_results)} tickers")
+print(f"    Indices         : {len(indices_results)} tickers")
+print(f"    Sectors         : {len(sectors_results)} tickers")
+print(f"    EW Sectors      : {len(sectors_ew_results)} tickers")
+print(f"    Commodities     : {len(commodities_results)} tickers")
