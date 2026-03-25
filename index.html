@@ -47,7 +47,6 @@
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
 
-    /* ── Sortable headers ── */
     thead th {
       padding: 9px 14px;
       text-align: left;
@@ -79,54 +78,33 @@
     td { padding: 10px 14px; white-space: nowrap; }
     td:not(:first-child) { text-align: center; }
 
-    /* ── Ticker ── */
     .ticker-sym  { font-weight: 700; font-size: .84rem; color: #e6edf3; font-family: 'Courier New', monospace; }
     .ticker-full { font-size: .70rem; color: #8b949e; margin-top: 2px; }
+    .price-val   { font-family: 'Courier New', monospace; font-size: .84rem; color: #e6edf3; }
 
-    /* ── Price ── */
-    .price-val { font-family: 'Courier New', monospace; font-size: .84rem; color: #e6edf3; }
-
-    /* ── Change badges ── */
     .chg {
-      display: inline-block;
-      min-width: 64px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: .78rem;
-      font-weight: 600;
+      display: inline-block; min-width: 64px; padding: 2px 8px;
+      border-radius: 4px; font-size: .78rem; font-weight: 600;
       font-family: 'Courier New', monospace;
     }
     .chg-pos  { background: rgba(35,134,54,.22);   color: #3fb950; }
     .chg-neg  { background: rgba(248,81,73,.18);   color: #f85149; }
     .chg-zero { background: rgba(110,118,129,.12); color: #8b949e; }
 
-    /* ── MA pills ── */
     .ma-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: .71rem;
-      font-weight: 600;
-      min-width: 72px;
-      justify-content: center;
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 3px 10px; border-radius: 20px; font-size: .71rem;
+      font-weight: 600; min-width: 72px; justify-content: center;
     }
     .ma-above-up   { background: rgba(35,134,54,.28);  color: #3fb950; border: 1px solid rgba(63,185,80,.28); }
     .ma-above-down { background: rgba(210,153,34,.22); color: #d9a400; border: 1px solid rgba(210,153,34,.28); }
     .ma-below-up   { background: rgba(219,109,40,.22); color: #db6d28; border: 1px solid rgba(219,109,40,.28); }
     .ma-below-down { background: rgba(248,81,73,.20);  color: #f85149; border: 1px solid rgba(248,81,73,.28); }
 
-    /* ── RS Rating badge ── */
     .rs-badge {
-      display: inline-block;
-      min-width: 38px;
-      padding: 3px 10px;
-      border-radius: 6px;
-      font-size: .80rem;
-      font-weight: 700;
-      font-family: 'Courier New', monospace;
-      text-align: center;
+      display: inline-block; min-width: 38px; padding: 3px 10px;
+      border-radius: 6px; font-size: .80rem; font-weight: 700;
+      font-family: 'Courier New', monospace; text-align: center;
     }
     .rs-5  { background: rgba(35,134,54,.30);   color: #3fb950; border: 1px solid rgba(63,185,80,.35); }
     .rs-4  { background: rgba(70,180,70,.20);   color: #7ee787; border: 1px solid rgba(70,180,70,.30); }
@@ -135,16 +113,10 @@
     .rs-1  { background: rgba(248,81,73,.20);   color: #f85149; border: 1px solid rgba(248,81,73,.28); }
     .rs-na { background: rgba(110,118,129,.12); color: #6e7681; border: 1px solid rgba(110,118,129,.18); }
 
-    /* ── ATR multiple badge ── */
     .atr-badge {
-      display: inline-block;
-      min-width: 52px;
-      padding: 3px 10px;
-      border-radius: 6px;
-      font-size: .80rem;
-      font-weight: 700;
-      font-family: 'Courier New', monospace;
-      text-align: center;
+      display: inline-block; min-width: 52px; padding: 3px 10px;
+      border-radius: 6px; font-size: .80rem; font-weight: 700;
+      font-family: 'Courier New', monospace; text-align: center;
     }
     .atr-ext-high { background: rgba(248,81,73,.22);   color: #f85149; border: 1px solid rgba(248,81,73,.35); }
     .atr-ext-mod  { background: rgba(219,109,40,.22);  color: #db6d28; border: 1px solid rgba(219,109,40,.30); }
@@ -153,39 +125,19 @@
     .atr-neg-deep { background: rgba(248,81,73,.20);   color: #f85149; border: 1px solid rgba(248,81,73,.28); }
     .atr-na       { background: rgba(110,118,129,.12); color: #6e7681; border: 1px solid rgba(110,118,129,.18); }
 
-    /* ── VARS mini-chart cell ── */
     .vars-cell { vertical-align: middle; }
     .vars-na {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 6px;
-      font-size: .72rem;
-      color: #6e7681;
-      background: rgba(110,118,129,.12);
-      border: 1px solid rgba(110,118,129,.18);
+      display: inline-block; padding: 3px 10px; border-radius: 6px;
+      font-size: .72rem; color: #6e7681;
+      background: rgba(110,118,129,.12); border: 1px solid rgba(110,118,129,.18);
     }
 
-    /* ── Legend ── */
     .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 10px 16px;
-      border-top: 1px solid #21262d;
-      background: #0d1117;
+      display: flex; flex-wrap: wrap; gap: 10px;
+      padding: 10px 16px; border-top: 1px solid #21262d; background: #0d1117;
     }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: .69rem;
-      color: #6e7681;
-    }
-    .legend-swatch {
-      display: inline-block;
-      width: 10px; height: 10px;
-      border-radius: 2px;
-    }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: .69rem; color: #6e7681; }
+    .legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
 
     .loading-msg { padding: 28px; text-align: center; color: #6e7681; font-style: italic; }
   </style>
@@ -197,7 +149,7 @@
   <span id="updated-time">Loading…</span>
 </header>
 
-<!-- ═══════════════════════════ INDICES ═══════════════════════════ -->
+<!-- ══════════════════════════ INDICES ════════════════════════════ -->
 <div class="section-card">
   <div class="section-title">📈 Indices — EOD Snapshot · Prev Close</div>
   <div class="table-wrap">
@@ -216,14 +168,14 @@
         <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
       </tr></thead>
       <tbody id="indices-body">
-        <tr><td colspan="11" class="loading-msg">⏳ Loading indices data…</td></tr>
+        <tr><td colspan="11" class="loading-msg">⏳ Loading…</td></tr>
       </tbody>
     </table>
   </div>
   <div class="legend" id="indices-legend"></div>
 </div>
 
-<!-- ═══════════════════════════ SECTORS ═══════════════════════════ -->
+<!-- ══════════════════════════ SECTORS ═══════════════════════════ -->
 <div class="section-card">
   <div class="section-title">🏭 Sectors — EOD Snapshot · Prev Close</div>
   <div class="table-wrap">
@@ -242,23 +194,48 @@
         <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
       </tr></thead>
       <tbody id="sectors-body">
-        <tr><td colspan="11" class="loading-msg">⏳ Loading sectors data…</td></tr>
+        <tr><td colspan="11" class="loading-msg">⏳ Loading…</td></tr>
       </tbody>
     </table>
   </div>
   <div class="legend" id="sectors-legend"></div>
 </div>
 
+<!-- ══════════════════════════ EW SECTORS ════════════════════════ -->
+<div class="section-card">
+  <div class="section-title">⚖️ EW Sectors — EOD Snapshot · Prev Close</div>
+  <div class="table-wrap">
+    <table id="sectors-ew-table">
+      <thead><tr>
+        <th data-col="ticker"       data-type="string">Ticker</th>
+        <th data-col="price"        data-type="number">Price</th>
+        <th data-col="daily_chg"    data-type="number">Daily Chg</th>
+        <th data-col="intraday_chg" data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open → Close)</small></th>
+        <th data-col="ema10"        data-type="ma">EMA 10</th>
+        <th data-col="ema20"        data-type="ma">EMA 20</th>
+        <th data-col="sma50"        data-type="ma">SMA 50</th>
+        <th data-col="sma200"       data-type="ma">SMA 200</th>
+        <th data-col="atr_multiple" data-type="number">ATRx 50-MA<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(ATR14 / SMA50)</small></th>
+        <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
+        <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
+      </tr></thead>
+      <tbody id="sectors-ew-body">
+        <tr><td colspan="11" class="loading-msg">⏳ Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend" id="sectors-ew-legend"></div>
+</div>
+
 <script>
   const MA_RANK = { above_up: 4, above_down: 3, below_up: 2, below_down: 1 };
 
-  // ── Each table gets its own independent sort state ────────────────
   const state = {
-    indices: { data: [], sortCol: null, sortDir: 'asc' },
-    sectors: { data: [], sortCol: null, sortDir: 'asc' },
+    indices:    { data: [], sortCol: null, sortDir: 'asc' },
+    sectors:    { data: [], sortCol: null, sortDir: 'asc' },
+    sectors_ew: { data: [], sortCol: null, sortDir: 'asc' },
   };
 
-  // ── Formatting helpers ────────────────────────────────────────────
   function fmtChg(val) {
     if (val == null) return '<span class="chg chg-zero">N/A</span>';
     const sign = val > 0 ? '+' : '';
@@ -332,7 +309,6 @@
     return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;margin:auto">${zeroLine}${bars}${maLine}</svg>`;
   }
 
-  // ── Render one row ────────────────────────────────────────────────
   function renderRow(row) {
     const fmt = n => n.toLocaleString(undefined,
       { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -353,12 +329,10 @@
     return tr;
   }
 
-  // ── Generic render + sort for any table ──────────────────────────
   function renderTable(tableId, bodyId, stateKey) {
     const tbody = document.getElementById(bodyId);
     tbody.innerHTML = '';
     const { data, sortCol, sortDir } = state[stateKey];
-
     const sorted = [...data].sort((a, b) => {
       if (!sortCol) return 0;
       const th   = document.querySelector(`#${tableId} thead th[data-col="${sortCol}"]`);
@@ -378,11 +352,9 @@
       if (va > vb) return sortDir === 'asc' ?  1 : -1;
       return 0;
     });
-
     sorted.forEach(row => tbody.appendChild(renderRow(row)));
   }
 
-  // ── Attach sort listeners to a table ─────────────────────────────
   function initSorting(tableId, bodyId, stateKey) {
     document.querySelectorAll(`#${tableId} thead th`).forEach(th => {
       th.addEventListener('click', () => {
@@ -403,7 +375,6 @@
     });
   }
 
-  // ── Build legend HTML (shared across both sections) ───────────────
   function buildLegend(legendId) {
     document.getElementById(legendId).innerHTML = `
       <div class="legend-item"><span class="ma-pill ma-above-up">▲ Above</span> Price &gt; MA &amp; MA rising</div>
@@ -427,7 +398,14 @@
     `;
   }
 
-  // ── Fetch and populate both tables ───────────────────────────────
+  function withLatest(rows) {
+    return rows.map(r => ({
+      ...r,
+      vars_latest: (r.vars_history && r.vars_history.length > 0)
+        ? r.vars_history[r.vars_history.length - 1].v : null
+    }));
+  }
+
   async function loadData() {
     try {
       const res  = await fetch('data/indices.json?v=' + Date.now());
@@ -437,44 +415,34 @@
       document.getElementById('updated-time').textContent =
         '🕒 Last updated: ' + (json.updated || 'unknown');
 
-      // ── Indices ──────────────────────────────────────────────────
-      if (json.indices && json.indices.length > 0) {
-        state.indices.data = json.indices.map(r => ({
-          ...r,
-          vars_latest: (r.vars_history && r.vars_history.length > 0)
-            ? r.vars_history[r.vars_history.length - 1].v : null
-        }));
-        renderTable('indices-table', 'indices-body', 'indices');
-        buildLegend('indices-legend');
-      } else {
-        document.getElementById('indices-body').innerHTML =
-          '<tr><td colspan="11" class="loading-msg">No indices data found.</td></tr>';
-      }
+      const sections = [
+        { key: 'indices',    jsonKey: 'indices',    tableId: 'indices-table',    bodyId: 'indices-body',    legendId: 'indices-legend' },
+        { key: 'sectors',    jsonKey: 'sectors',    tableId: 'sectors-table',    bodyId: 'sectors-body',    legendId: 'sectors-legend' },
+        { key: 'sectors_ew', jsonKey: 'sectors_ew', tableId: 'sectors-ew-table', bodyId: 'sectors-ew-body', legendId: 'sectors-ew-legend' },
+      ];
 
-      // ── Sectors ──────────────────────────────────────────────────
-      if (json.sectors && json.sectors.length > 0) {
-        state.sectors.data = json.sectors.map(r => ({
-          ...r,
-          vars_latest: (r.vars_history && r.vars_history.length > 0)
-            ? r.vars_history[r.vars_history.length - 1].v : null
-        }));
-        renderTable('sectors-table', 'sectors-body', 'sectors');
-        buildLegend('sectors-legend');
-      } else {
-        document.getElementById('sectors-body').innerHTML =
-          '<tr><td colspan="11" class="loading-msg">No sectors data found.</td></tr>';
-      }
+      sections.forEach(({ key, jsonKey, tableId, bodyId, legendId }) => {
+        if (json[jsonKey] && json[jsonKey].length > 0) {
+          state[key].data = withLatest(json[jsonKey]);
+          renderTable(tableId, bodyId, key);
+          buildLegend(legendId);
+        } else {
+          document.getElementById(bodyId).innerHTML =
+            '<tr><td colspan="11" class="loading-msg">No data found.</td></tr>';
+        }
+      });
 
     } catch (err) {
-      ['indices-body','sectors-body'].forEach(id => {
+      ['indices-body','sectors-body','sectors-ew-body'].forEach(id => {
         document.getElementById(id).innerHTML =
-          `<tr><td colspan="11" class="loading-msg">❌ Error loading data: ${err.message}</td></tr>`;
+          `<tr><td colspan="11" class="loading-msg">❌ Error: ${err.message}</td></tr>`;
       });
     }
   }
 
-  initSorting('indices-table', 'indices-body', 'indices');
-  initSorting('sectors-table', 'sectors-body', 'sectors');
+  initSorting('indices-table',    'indices-body',    'indices');
+  initSorting('sectors-table',    'sectors-body',    'sectors');
+  initSorting('sectors-ew-table', 'sectors-ew-body', 'sectors_ew');
   loadData();
 </script>
 
