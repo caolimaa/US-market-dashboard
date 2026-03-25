@@ -29,6 +29,21 @@ SECTORS = [
     {"ticker": "XLY",  "name": "Consumer Discret."},
 ]
 
+# ── Equal-Weight Sector ETF tickers ───────────────────────────────────
+SECTORS_EW = [
+    {"ticker": "RSPT",  "name": "EW Technology"},
+    {"ticker": "RSPC",  "name": "EW Consumer Discret."},
+    {"ticker": "RSPN",  "name": "EW Industrials"},
+    {"ticker": "RSPF",  "name": "EW Financials"},
+    {"ticker": "RSPD",  "name": "EW Consumer Staples"},
+    {"ticker": "RSPU",  "name": "EW Utilities"},
+    {"ticker": "RSPR",  "name": "EW Real Estate"},
+    {"ticker": "RSPH",  "name": "EW Health Care"},
+    {"ticker": "RSPM",  "name": "EW Materials"},
+    {"ticker": "RSPS",  "name": "EW Energy"},
+    {"ticker": "RSPG",  "name": "EW Communication Svcs"},
+]
+
 # ── ~490 S&P 500 universe for RS Rating percentile ────────────────────
 SP500_UNIVERSE = [
     # Technology (~65)
@@ -177,8 +192,8 @@ def calc_vars_history(df_stock, df_spy, lookback=50, ma_len=20, atr_len=14, n_ba
         return None
     s = df_stock.loc[common][["High","Low","Close"]].copy()
     b = df_spy.loc[common][["High","Low","Close"]].copy()
-    atr_s  = calc_atr_series(s, atr_len)
-    atr_b  = calc_atr_series(b, atr_len)
+    atr_s      = calc_atr_series(s, atr_len)
+    atr_b      = calc_atr_series(b, atr_len)
     delta_s    = s["Close"].diff() / atr_s.replace(0, float("nan"))
     delta_b    = b["Close"].diff() / atr_b.replace(0, float("nan"))
     daily_vars = (delta_s - delta_b).fillna(0)
@@ -191,9 +206,6 @@ def calc_vars_history(df_stock, df_spy, lookback=50, ma_len=20, atr_len=14, n_ba
     return [{"v": round(float(r.v), 4), "m": round(float(r.m), 4)}
             for _, r in tail.iterrows()]
 
-# ─────────────────────────────────────────────────────────────────────
-# Core function: process a list of ticker dicts → list of result dicts
-# ─────────────────────────────────────────────────────────────────────
 def process_tickers(ticker_list, df_spy, universe_scores):
     results = []
     for item in ticker_list:
@@ -269,7 +281,6 @@ def process_tickers(ticker_list, df_spy, universe_scores):
 # ═════════════════════════════════════════════════════════════════════
 os.makedirs("data", exist_ok=True)
 
-# ── Pre-fetch SPY benchmark ───────────────────────────────────────────
 print("[INFO] Fetching SPY benchmark for VARS…")
 try:
     spy_raw = yf.download("SPY", period="1y", interval="1d",
@@ -282,27 +293,29 @@ except Exception as e:
     df_spy = None
     print(f"[WARN] SPY fetch failed: {e}")
 
-# ── Build RS universe ─────────────────────────────────────────────────
 universe_scores = build_universe()
 
-# ── Process both lists ────────────────────────────────────────────────
 print("\n── Indices ──────────────────────────────────────────")
 indices_results = process_tickers(INDICES, df_spy, universe_scores)
 
 print("\n── Sectors ──────────────────────────────────────────")
 sectors_results = process_tickers(SECTORS, df_spy, universe_scores)
 
-# ── Save to JSON ──────────────────────────────────────────────────────
+print("\n── EW Sectors ───────────────────────────────────────")
+sectors_ew_results = process_tickers(SECTORS_EW, df_spy, universe_scores)
+
 hkt     = pytz.timezone("Asia/Hong_Kong")
 updated = datetime.now(hkt).strftime("%d %b %Y, %H:%M HKT")
 
 with open("data/indices.json", "w") as fh:
     json.dump({
-        "updated": updated,
-        "indices": indices_results,
-        "sectors": sectors_results,
+        "updated":    updated,
+        "indices":    indices_results,
+        "sectors":    sectors_results,
+        "sectors_ew": sectors_ew_results,
     }, fh, indent=2)
 
 print(f"\n✅  Saved → data/indices.json  ({updated})")
-print(f"    Indices : {len(indices_results)} tickers")
-print(f"    Sectors : {len(sectors_results)} tickers")
+print(f"    Indices    : {len(indices_results)} tickers")
+print(f"    Sectors    : {len(sectors_results)} tickers")
+print(f"    EW Sectors : {len(sectors_ew_results)} tickers")
