@@ -72,6 +72,11 @@
     thead th.sort-asc::after  { content: ' ▲'; opacity: 1; color: #58a6ff; }
     thead th.sort-desc::after { content: ' ▼'; opacity: 1; color: #58a6ff; }
 
+    /* VARS column: no sort arrow (it holds a chart, not a scalar) */
+    thead th[data-col="vars_history"]::after { display: none; }
+    thead th[data-col="vars_history"] { cursor: default; }
+    thead th[data-col="vars_history"]:hover { color: #8b949e; background: #0d1117; }
+
     tbody tr { border-bottom: 1px solid #1c2128; transition: background .12s; }
     tbody tr:hover { background: #1c2128; }
     tbody tr:last-child { border-bottom: none; }
@@ -146,15 +151,24 @@
       font-family: 'Courier New', monospace;
       text-align: center;
     }
-    /* Positive (price above 50-MA) */
-    .atr-ext-high { background: rgba(248,81,73,.22);   color: #f85149; border: 1px solid rgba(248,81,73,.35); }  /* > 7x  : very extended */
-    .atr-ext-mod  { background: rgba(219,109,40,.22);  color: #db6d28; border: 1px solid rgba(219,109,40,.30); } /* 4–7x  : extended      */
-    .atr-pos-norm { background: rgba(35,134,54,.22);   color: #3fb950; border: 1px solid rgba(63,185,80,.28); }  /* 0–4x  : healthy above */
-    /* Negative (price below 50-MA) */
-    .atr-neg-mild { background: rgba(187,162,0,.22);   color: #e3b341; border: 1px solid rgba(187,162,0,.30); }  /* -4–0x : mild pullback */
-    .atr-neg-deep { background: rgba(248,81,73,.20);   color: #f85149; border: 1px solid rgba(248,81,73,.28); }  /* < -4x : deep below   */
-    /* N/A */
+    .atr-ext-high { background: rgba(248,81,73,.22);   color: #f85149; border: 1px solid rgba(248,81,73,.35); }
+    .atr-ext-mod  { background: rgba(219,109,40,.22);  color: #db6d28; border: 1px solid rgba(219,109,40,.30); }
+    .atr-pos-norm { background: rgba(35,134,54,.22);   color: #3fb950; border: 1px solid rgba(63,185,80,.28); }
+    .atr-neg-mild { background: rgba(187,162,0,.22);   color: #e3b341; border: 1px solid rgba(187,162,0,.30); }
+    .atr-neg-deep { background: rgba(248,81,73,.20);   color: #f85149; border: 1px solid rgba(248,81,73,.28); }
     .atr-na       { background: rgba(110,118,129,.12); color: #6e7681; border: 1px solid rgba(110,118,129,.18); }
+
+    /* ── VARS mini-chart cell ── */
+    .vars-cell { vertical-align: middle; }
+    .vars-na   {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: .72rem;
+      color: #6e7681;
+      background: rgba(110,118,129,.12);
+      border: 1px solid rgba(110,118,129,.18);
+    }
 
     /* ── Legend ── */
     .legend {
@@ -171,6 +185,11 @@
       gap: 7px;
       font-size: .69rem;
       color: #6e7681;
+    }
+    .legend-swatch {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 2px;
     }
 
     .loading-msg { padding: 28px; text-align: center; color: #6e7681; font-style: italic; }
@@ -200,10 +219,11 @@
           <th data-col="sma200"       data-type="ma">SMA 200</th>
           <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
           <th data-col="atr_multiple" data-type="number">ATRx 50-MA<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(ATR14 / SMA50)</small></th>
+          <th data-col="vars_history" data-type="none">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
         </tr>
       </thead>
       <tbody id="indices-body">
-        <tr><td colspan="10" class="loading-msg">⏳ Loading indices data…</td></tr>
+        <tr><td colspan="11" class="loading-msg">⏳ Loading indices data…</td></tr>
       </tbody>
     </table>
   </div>
@@ -221,11 +241,21 @@
     <div class="legend-item"><span class="rs-badge rs-2">20–39</span> RS: Lagging</div>
     <div class="legend-item"><span class="rs-badge rs-1">1–19</span>  RS: Weak</div>
     <!-- ATR legend -->
-    <div class="legend-item" style="margin-left:8px"><span class="atr-badge atr-ext-high">&gt;7x</span>  Very extended</div>
+    <div class="legend-item" style="margin-left:8px"><span class="atr-badge atr-ext-high">&gt;7x</span> Very extended</div>
     <div class="legend-item"><span class="atr-badge atr-ext-mod">4–7x</span>  Extended</div>
     <div class="legend-item"><span class="atr-badge atr-pos-norm">0–4x</span>  Healthy above</div>
     <div class="legend-item"><span class="atr-badge atr-neg-mild">-4–0x</span> Mild pullback</div>
     <div class="legend-item"><span class="atr-badge atr-neg-deep">&lt;-4x</span> Deep below</div>
+    <!-- VARS legend -->
+    <div class="legend-item" style="margin-left:8px">
+      <span class="legend-swatch" style="background:#58a6ff"></span> VARS bars (neutral)
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:#e3b341;border-radius:0;height:2px;width:14px"></span> SMA20 line
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:#444c56"></span> Zero line
+    </div>
   </div>
 </div>
 
@@ -268,19 +298,69 @@
   function atrBadge(val) {
     if (val == null) return '<span class="atr-badge atr-na">N/A</span>';
     let cls;
-    if      (val > 7)  cls = 'atr-ext-high';
-    else if (val > 4)  cls = 'atr-ext-mod';
-    else if (val >= 0) cls = 'atr-pos-norm';
+    if      (val > 7)   cls = 'atr-ext-high';
+    else if (val > 4)   cls = 'atr-ext-mod';
+    else if (val >= 0)  cls = 'atr-pos-norm';
     else if (val >= -4) cls = 'atr-neg-mild';
-    else               cls = 'atr-neg-deep';
+    else                cls = 'atr-neg-deep';
     const sign = val > 0 ? '+' : '';
     return `<span class="atr-badge ${cls}">${sign}${val.toFixed(1)}x</span>`;
   }
 
+  // ── VARS inline SVG mini-histogram ───────────────────────────────
+  function varsSvg(data) {
+    if (!data || data.length === 0)
+      return '<span class="vars-na">N/A</span>';
+
+    const W = 96, H = 40, padX = 2, padY = 3;
+    const vals = data.map(d => d.v);
+    const mas  = data.map(d => d.m);
+    const all  = [...vals, ...mas];
+    const mx   = Math.max(...all);
+    const mn   = Math.min(...all);
+    const rng  = mx - mn || 0.0001;
+
+    const innerH = H - padY * 2;
+    const barW   = (W - padX * 2) / data.length;
+
+    // Map a value → Y pixel (top = high value)
+    const sy = v => padY + ((mx - v) / rng) * innerH;
+
+    // Zero line
+    const zy       = sy(0);
+    const zeroLine = `<line x1="${padX}" y1="${zy.toFixed(1)}" x2="${W - padX}" y2="${zy.toFixed(1)}" stroke="#30363d" stroke-width="0.8"/>`;
+
+    // Bars — single neutral color per jfsrev's recommendation
+    let bars = '';
+    vals.forEach((v, i) => {
+      const x    = padX + i * barW;
+      const yVal = sy(v);
+      const yZ   = sy(0);
+      const top  = Math.min(yVal, yZ);
+      const h    = Math.max(Math.abs(yVal - yZ), 1);
+      bars += `<rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" `
+            + `width="${(barW - 0.8).toFixed(1)}" height="${h.toFixed(1)}" `
+            + `fill="#58a6ff" opacity="0.75"/>`;
+    });
+
+    // SMA line
+    const pts = mas.map((m, i) => {
+      const x = padX + i * barW + barW / 2;
+      return `${x.toFixed(1)},${sy(m).toFixed(1)}`;
+    }).join(' ');
+    const maLine = `<polyline points="${pts}" fill="none" stroke="#e3b341" stroke-width="1.4" stroke-linejoin="round"/>`;
+
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" `
+         + `style="display:block;margin:auto">`
+         + zeroLine + bars + maLine
+         + `</svg>`;
+  }
+
   // ── Render one table row ──────────────────────────────────────────
   function renderRow(row) {
-    const fmt = (n) => n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const tr  = document.createElement('tr');
+    const fmt = n => n.toLocaleString(undefined,
+      { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>
         <div class="ticker-sym">${row.ticker}</div>
@@ -295,11 +375,12 @@
       <td>${maPill(row.sma200)}</td>
       <td>${rsBadge(row.rs_rating)}</td>
       <td>${atrBadge(row.atr_multiple)}</td>
+      <td class="vars-cell">${varsSvg(row.vars_history)}</td>
     `;
     return tr;
   }
 
-  // ── Render entire sorted table ────────────────────────────────────
+  // ── Render sorted table ───────────────────────────────────────────
   function renderTable() {
     const tbody = document.getElementById('indices-body');
     tbody.innerHTML = '';
@@ -308,6 +389,7 @@
       if (!sortCol) return 0;
       const th   = document.querySelector(`th[data-col="${sortCol}"]`);
       const type = th ? th.dataset.type : 'string';
+      if (type === 'none') return 0;   // VARS column — not sortable
       let va, vb;
       if (type === 'ma') {
         va = MA_RANK[a[sortCol]] ?? 0;
@@ -331,17 +413,17 @@
   function initSorting() {
     document.querySelectorAll('#indices-table thead th').forEach(th => {
       th.addEventListener('click', () => {
-        const col = th.dataset.col;
-        if (!col) return;
+        const col  = th.dataset.col;
+        const type = th.dataset.type;
+        if (!col || type === 'none') return;
         if (sortCol === col) {
           sortDir = sortDir === 'asc' ? 'desc' : 'asc';
         } else {
           sortCol = col;
           sortDir = col === 'ticker' ? 'asc' : 'desc';
         }
-        document.querySelectorAll('#indices-table thead th').forEach(h => {
-          h.classList.remove('sort-asc', 'sort-desc');
-        });
+        document.querySelectorAll('#indices-table thead th').forEach(h =>
+          h.classList.remove('sort-asc', 'sort-desc'));
         th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
         renderTable();
       });
@@ -360,7 +442,7 @@
 
       if (!json.indices || json.indices.length === 0) {
         document.getElementById('indices-body').innerHTML =
-          '<tr><td colspan="10" class="loading-msg">No data found.</td></tr>';
+          '<tr><td colspan="11" class="loading-msg">No data found.</td></tr>';
         return;
       }
 
@@ -368,7 +450,7 @@
       renderTable();
     } catch (err) {
       document.getElementById('indices-body').innerHTML =
-        `<tr><td colspan="10" class="loading-msg">❌ Error loading data: ${err.message}</td></tr>`;
+        `<tr><td colspan="11" class="loading-msg">❌ Error loading data: ${err.message}</td></tr>`;
     }
   }
 
