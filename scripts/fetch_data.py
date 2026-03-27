@@ -629,12 +629,10 @@ def fetch_full_us_tickers():
         print(f"[WARN] fetch_full_us_tickers: {e}")
         return []
 
-
 def compute_full_52wk_highs_lows():
     """
     Download 1y of daily data for all regular US stocks in batches of 300,
-    then count how many closed within 1.5% of their 52-week high/low.
-    Typical result: ~5,000–6,500 stocks processed in ~2–3 minutes.
+    then count how many made a NEW 52-week high/low today.
     """
     tickers = fetch_full_us_tickers()
     if not tickers:
@@ -646,7 +644,7 @@ def compute_full_52wk_highs_lows():
     batches = (len(tickers) + BATCH - 1) // BATCH
 
     for i in range(0, len(tickers), BATCH):
-        batch = tickers[i : i + BATCH]
+        batch     = tickers[i : i + BATCH]
         batch_num = i // BATCH + 1
         try:
             raw = yf.download(
@@ -659,8 +657,8 @@ def compute_full_52wk_highs_lows():
             for t in batch:
                 try:
                     if is_multi:
-                        c = raw[t]["Close"].dropna()
-                        h = raw[t]["High"].dropna()
+                        c  = raw[t]["Close"].dropna()
+                        h  = raw[t]["High"].dropna()
                         lo = raw[t]["Low"].dropna()
                     else:
                         c  = raw["Close"].dropna()
@@ -669,14 +667,12 @@ def compute_full_52wk_highs_lows():
                     if len(c) < 20:
                         continue
                     total      += 1
-today_high = float(h.iloc[-1])
-today_low  = float(lo.iloc[-1])
-high_52w   = float(h.max())   # includes today
-low_52w    = float(lo.min())  # includes today
-# New 52-week high = today's high IS the 52-week high
-if today_high >= high_52w * 0.9999: highs += 1
-if today_low  <= low_52w  * 1.0001: lows  += 1
-
+                    today_high  = float(h.iloc[-1])
+                    today_low   = float(lo.iloc[-1])
+                    high_52w    = float(h.max())
+                    low_52w     = float(lo.min())
+                    if today_high >= high_52w * 0.9999: highs += 1
+                    if today_low  <= low_52w  * 1.0001: lows  += 1
                 except Exception:
                     pass
             print(f"[INFO] 52W H/L batch {batch_num}/{batches} done  "
@@ -689,8 +685,6 @@ if today_low  <= low_52w  * 1.0001: lows  += 1
         return None, None
     print(f"[OK]   Full US 52W Highs={highs}  Lows={lows}  ({total} stocks processed)")
     return highs, lows
-
-
 
 # ═════════════════════════════════════════════════════════════════════
 os.makedirs("data", exist_ok=True)
