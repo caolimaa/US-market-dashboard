@@ -351,9 +351,18 @@ def process_tickers(ticker_list, df_spy, universe_scores):
             prev_close = float(prev["Close"])
             open_price = float(last["Open"])
 
-            daily_chg    = round((price - prev_close) / prev_close * 100, 2)
-            intraday_chg = round((price - open_price) / open_price * 100, 2) \
-                           if open_price != 0 else 0.0
+daily_chg    = round((price - prev_close) / prev_close * 100, 2)
+intraday_chg = round((price - open_price)  / open_price * 100, 2) \
+               if open_price != 0 else 0.0
+
+# 5-day % change (uses close from 5 trading days ago, index -6)
+try:
+    close_5d   = float(df["Close"].iloc[-6])
+    chg_5d     = round((price - close_5d) / close_5d * 100, 2) \
+                 if close_5d != 0 else 0.0
+except IndexError:
+    chg_5d = None
+
 
             def ma_tag(price_above_ma, ma_is_rising):
                 if price_above_ma and ma_is_rising:       return "above_up"
@@ -379,6 +388,7 @@ def process_tickers(ticker_list, df_spy, universe_scores):
                 "price":        round(price, 2),
                 "daily_chg":    daily_chg,
                 "intraday_chg": intraday_chg,
+                "chg_5d":       chg_5d,
                 "ema10":  ma_tag(price > float(last["EMA10"]),  float(last["EMA10"])  > float(prev["EMA10"])),
                 "ema20":  ma_tag(price > float(last["EMA20"]),  float(last["EMA20"])  > float(prev["EMA20"])),
                 "sma50":  ma_tag(price > float(last["SMA50"]),  float(last["SMA50"])  > float(prev["SMA50"])),
