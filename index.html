@@ -219,6 +219,52 @@
   </div>
 </section>
 
+<!-- Fear & Greed Card — add inside your #market-breadth section, after the NAAIM card -->
+<div class="mb-card" style="margin-top:0.75rem;">
+  <div class="mb-card-header">
+    <span class="mb-label">Fear &amp; Greed Index</span>
+    <span class="mb-status" id="fg-status">Loading…</span>
+  </div>
+  <div class="mb-value" id="fg-value">—</div>
+  <div class="mb-subtext" id="fg-rating"></div>
+  <a class="mb-source" href="https://edition.cnn.com/markets/fear-and-greed" target="_blank" rel="noopener noreferrer">
+    Source: CNN Markets ↗
+  </a>
+</div>
+
+<script>
+(function () {
+  const FALLBACK_VALUE  = '25';
+  const FALLBACK_RATING = 'Extreme Fear (cached)';
+
+  function setFG(score, rating, isLive) {
+    document.getElementById('fg-value').textContent  = score;
+    document.getElementById('fg-rating').textContent = rating;
+    const s = document.getElementById('fg-status');
+    s.textContent = isLive ? 'Live' : 'Cached';
+    s.className   = 'mb-status ' + (isLive ? 'live' : 'cached');
+  }
+
+  const apiUrl  = 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata';
+  const proxy   = 'https://api.allorigins.win/get?url=' + encodeURIComponent(apiUrl);
+
+  fetch(proxy)
+    .then(r => r.json())
+    .then(data => {
+      const json = JSON.parse(data.contents);
+      const fg   = json.fear_and_greed;
+      if (fg && fg.score != null) {
+        const score  = Math.round(fg.score);
+        const rating = fg.rating || '';
+        setFG(score, rating, true);
+      } else {
+        setFG(FALLBACK_VALUE, FALLBACK_RATING, false);
+      }
+    })
+    .catch(() => setFG(FALLBACK_VALUE, FALLBACK_RATING, false));
+})();
+</script> 
+  
 <style>
   #market-breadth {
     padding: 1.5rem 0;
