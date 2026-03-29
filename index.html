@@ -202,7 +202,140 @@
   </div>
 </div>
 
+<!-- ── MARKET BREADTH SECTION ── -->
+<section id="market-breadth">
+  <h2>Market Breadth</h2>
 
+  <div class="mb-card">
+    <div class="mb-card-header">
+      <span class="mb-label">NAAIM Exposure Index</span>
+      <span class="mb-status" id="naaim-status">Loading…</span>
+    </div>
+    <div class="mb-value" id="naaim-value">—</div>
+    <div class="mb-subtext" id="naaim-date"></div>
+    <a class="mb-source" href="https://naaim.org/programs/naaim-exposure-index/" target="_blank" rel="noopener noreferrer">
+      Source: naaim.org ↗
+    </a>
+  </div>
+</section>
+
+<style>
+  #market-breadth {
+    padding: 1.5rem 0;
+  }
+  #market-breadth h2 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #7a7974);
+    margin-bottom: 1rem;
+  }
+  .mb-card {
+    background: var(--color-surface, #f9f8f5);
+    border: 1px solid oklch(from #28251d l c h / 0.10);
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 200px;
+  }
+  .mb-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .mb-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted, #7a7974);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .mb-status {
+    font-size: 0.7rem;
+    color: var(--color-text-faint, #bab9b4);
+  }
+  .mb-status.live::before {
+    content: "● ";
+    color: #437a22;
+  }
+  .mb-status.cached::before {
+    content: "● ";
+    color: #bab9b4;
+  }
+  .mb-value {
+    font-size: 2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text, #28251d);
+    line-height: 1.1;
+  }
+  .mb-subtext {
+    font-size: 0.72rem;
+    color: var(--color-text-faint, #bab9b4);
+  }
+  .mb-source {
+    font-size: 0.7rem;
+    color: var(--color-primary, #01696f);
+    text-decoration: none;
+    margin-top: 0.25rem;
+  }
+  .mb-source:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<script>
+(function () {
+  const FALLBACK_VALUE = '68.52';
+  const FALLBACK_DATE  = 'Wk of Mar 25, 2026 (cached)';
+
+  function setNAAIM(value, date, isLive) {
+    document.getElementById('naaim-value').textContent = value;
+    document.getElementById('naaim-date').textContent  = date;
+    const s = document.getElementById('naaim-status');
+    s.textContent  = isLive ? 'Live' : 'Cached';
+    s.className    = 'mb-status ' + (isLive ? 'live' : 'cached');
+  }
+
+  const proxyUrl = 'https://api.allorigins.win/get?url=' +
+    encodeURIComponent('https://naaim.org/programs/naaim-exposure-index/');
+
+  fetch(proxyUrl)
+    .then(r => r.json())
+    .then(data => {
+      const doc = new DOMParser().parseFromString(data.contents, 'text/html');
+
+      // NAAIM renders the current number inside a shortcode block
+      const block = doc.querySelector('.brxe-shortcode, .naaim-current, .entry-content');
+      let value = null, dateStr = '';
+
+      if (block) {
+        // Grab the first standalone number that looks like an exposure index
+        const text = block.textContent || '';
+        const match = text.match(/\b(\d{1,3}(?:\.\d{1,2})?)\b/);
+        if (match) value = match[1];
+
+        // Grab a date pattern like "March 26, 2026" or "03/26/2026"
+        const dateMatch = text.match(
+          /(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s+\d{4}|\d{1,2}\/\d{1,2}\/\d{4}/i
+        );
+        if (dateMatch) dateStr = 'Wk of ' + dateMatch[0];
+      }
+
+      if (value) {
+        setNAAIM(value, dateStr || '', true);
+      } else {
+        setNAAIM(FALLBACK_VALUE, FALLBACK_DATE, false);
+      }
+    })
+    .catch(() => setNAAIM(FALLBACK_VALUE, FALLBACK_DATE, false));
+})();
+</script>
+  
 <!-- ══════════════════════════ INDICES ════════════════════════════ -->
 <div class="section-card">
   <div class="section-title">📈 Indices — EOD Snapshot · Prev Close</div>
