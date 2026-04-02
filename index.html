@@ -140,6 +140,9 @@
     .legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
 
     .loading-msg { padding: 28px; text-align: center; color: #6e7681; font-style: italic; }
+  </style>
+</head>
+<body>
 
 <header>
   <h1>📊 Market Dashboard</h1>
@@ -165,7 +168,7 @@
     </script>
   </div>
 </div>
-  
+
 <!-- ══════════════════════════ INDICES ════════════════════════════ -->
 <div class="section-card">
   <div class="section-title">📈 Indices — EOD Snapshot · Prev Close</div>
@@ -466,6 +469,7 @@
         ? r.vars_history[r.vars_history.length - 1].v : null
     }));
   }
+
   // ── Load data ─────────────────────────────────────────────────────
   async function loadData() {
     try {
@@ -475,8 +479,6 @@
 
       document.getElementById('updated-time').textContent =
         '🕒 Last updated: ' + (json.updated || 'unknown');
-
-      renderBreadth(json.breadth || null);
 
       const sections = [
         { key: 'indices',     jsonKey: 'indices',     tableId: 'indices-table',     bodyId: 'indices-body',     legendId: 'indices-legend'     },
