@@ -1,6 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import json
+import requests
 from datetime import datetime
 from pathlib import Path
 
@@ -10,17 +11,17 @@ OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 # ── Ticker definitions ────────────────────────────────────────────────────
 
 INDICES = [
-    {"ticker": "^VIX",   "name": "CBOE Volatility Index"},
-    {"ticker": "IWM",    "name": "Russell 2000 ETF"},
-    {"ticker": "DIA",    "name": "Dow Jones ETF"},
-    {"ticker": "SPY",    "name": "S&P 500 ETF"},
-    {"ticker": "QQQ",    "name": "Nasdaq 100 ETF"},
-    {"ticker": "QQQE",   "name": "Nasdaq 100 Equal Weight ETF"},
-    {"ticker": "EDOW",   "name": "Dow Jones Equal Weight ETF"},
-    {"ticker": "RSP",    "name": "S&P 500 Equal Weight ETF"},
+    {"ticker": "^VIX",     "name": "CBOE Volatility Index"},
+    {"ticker": "IWM",      "name": "Russell 2000 ETF"},
+    {"ticker": "DIA",      "name": "Dow Jones ETF"},
+    {"ticker": "SPY",      "name": "S&P 500 ETF"},
+    {"ticker": "QQQ",      "name": "Nasdaq 100 ETF"},
+    {"ticker": "QQQE",     "name": "Nasdaq 100 Equal Weight ETF"},
+    {"ticker": "EDOW",     "name": "Dow Jones Equal Weight ETF"},
+    {"ticker": "RSP",      "name": "S&P 500 Equal Weight ETF"},
     {"ticker": "DX-Y.NYB", "name": "US Dollar Index"},
-    {"ticker": "ARKK",   "name": "ARK Innovation ETF"},
-    {"ticker": "^TNX",   "name": "US 10Y Treasury Yield"},
+    {"ticker": "ARKK",     "name": "ARK Innovation ETF"},
+    {"ticker": "^TNX",     "name": "US 10Y Treasury Yield"},
 ]
 
 SECTORS = [
@@ -51,20 +52,18 @@ SECTORS_EW = [
     {"ticker": "RSPC", "name": "EW Comm Services"},
 ]
 
-# Note: Commodities listed as XAGUSD, XAUUSD etc. are forex/spot symbols not
-# available on yfinance directly. Mapped to closest yfinance-tradable equivalents.
 COMMODITIES = [
-    {"ticker": "SLV",    "name": "Silver (SLV ETF)"},           # XAGUSD
-    {"ticker": "GLD",    "name": "Gold (GLD ETF)"},             # XAUUSD
-    {"ticker": "PPLT",   "name": "Platinum (PPLT ETF)"},        # XPTUSD
-    {"ticker": "PALL",   "name": "Palladium (PALL ETF)"},       # XPDUSD
-    {"ticker": "USO",    "name": "WTI Crude Oil (USO ETF)"},    # WTI
-    {"ticker": "JJU",    "name": "Aluminum (JJU ETF)"},         # ALIUSD
-    {"ticker": "UNG",    "name": "Natural Gas (UNG ETF)"},      # XNGUSD
-    {"ticker": "CPER",   "name": "Copper (CPER ETF)"},          # XCUUSD
-    {"ticker": "SOL-USD","name": "Solana"},                     # SOLUSD
-    {"ticker": "BTC-USD","name": "Bitcoin"},                    # BTCUSD
-    {"ticker": "ETH-USD","name": "Ethereum"},                   # ETHUSD
+    {"ticker": "SLV",     "name": "Silver (SLV ETF)"},
+    {"ticker": "GLD",     "name": "Gold (GLD ETF)"},
+    {"ticker": "PPLT",    "name": "Platinum (PPLT ETF)"},
+    {"ticker": "PALL",    "name": "Palladium (PALL ETF)"},
+    {"ticker": "USO",     "name": "WTI Crude Oil (USO ETF)"},
+    {"ticker": "JJU",     "name": "Aluminum (JJU ETF)"},
+    {"ticker": "UNG",     "name": "Natural Gas (UNG ETF)"},
+    {"ticker": "CPER",    "name": "Copper (CPER ETF)"},
+    {"ticker": "SOL-USD", "name": "Solana"},
+    {"ticker": "BTC-USD", "name": "Bitcoin"},
+    {"ticker": "ETH-USD", "name": "Ethereum"},
 ]
 
 THEMATIC = [
@@ -150,6 +149,109 @@ THEMATIC = [
 ]
 
 
+# ── Fred6724 RS Rating calibration thresholds ─────────────────────────────
+# Pulled from his public rs-log repo — same thresholds his Pine Script uses.
+# Falls back to his last known approximate values if the fetch fails.
+FALLBACK_THRESHOLDS = [195.93, 117.11, 99.04, 91.66, 80.96, 53.64, 24.86]
+
+def fetch_rs_thresholds() -> list:
+    """
+    Fetch Fred6724's 7 RS calibration thresholds from his public GitHub CSV.
+    Returns [first, scnd, thrd, frth, ffth, sxth, svth] — same order as Pine Script.
+    """
+    url = "https://raw.githubusercontent.com/Fred6725/rs-log/main/output/rs_stocks.csv"
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        lines = [l.strip() for l in resp.text.strip().split('\n') if l.strip()]
+        # The CSV contains RS scores for thousands of stocks; we extract the
+        # boundary percentiles at ranks 99, 90, 70, 50, 30, 10, 1
+        df = pd.read_csv(pd.io.common.StringIO(resp.text))
+        # Column expected: 'rs_score' or similar — try to find it
+        score_col = [c for c in df.columns if 'score' in c.lower() or 'rs' in c.lower()]
+        if score_col:
+            scores = df[score_col[0]].dropna().sort_values(ascending=False).reset_index(drop=True)
+            n = len(scores)
+            def pct_val(p): return float(scores.iloc[max(0, int(n * (1 - p/100)) - 1)])
+            thresholds = [pct_val(99), pct_val(90), pct_val(70), pct_val(50),
+                          pct_val(30), pct_val(10), pct_val(1)]
+            print(f"  ✓  RS thresholds fetched from Fred6724 repo: {[round(t,2) for t in thresholds]}")
+            return thresholds
+    except Exception as e:
+        print(f"  ⚠  Could not fetch RS thresholds ({e}), using fallback values.")
+    return FALLBACK_THRESHOLDS
+
+
+def f_attribute_percentile(score, taller, smaller, range_up, range_dn, weight):
+    """Python port of Fred6724's f_attributePercentile() Pine Script function."""
+    total = score + (score - smaller) * weight
+    if total > taller - 1:
+        total = taller - 1
+    k1 = smaller / range_dn
+    k2 = (taller - 1) / range_up
+    k3 = (k1 - k2) / (taller - 1 - smaller)
+    rating = total / (k1 - k3 * (score - smaller))
+    return max(range_dn, min(range_up, rating))
+
+
+def compute_rs_rating(ticker_close: pd.Series, spx_close: pd.Series,
+                      thresholds: list) -> int | None:
+    """
+    Compute Fred6724's RS Rating (1–99) for a ticker given its daily close
+    series and the SPX daily close series. Returns None if insufficient data.
+    """
+    first, scnd, thrd, frth, ffth, sxth, svth = thresholds
+
+    min_bars = max(bar_index for bar_index in [63, 126, 189, 252])
+    if len(ticker_close) < min_bars + 1 or len(spx_close) < min_bars + 1:
+        return None
+
+    # Align series
+    combined = pd.concat([ticker_close, spx_close], axis=1).dropna()
+    combined.columns = ['ticker', 'spx']
+    if len(combined) < 253:
+        return None
+
+    t = combined['ticker']
+    s = combined['spx']
+
+    n63  = min(63,  len(t) - 1)
+    n126 = min(126, len(t) - 1)
+    n189 = min(189, len(t) - 1)
+    n252 = min(252, len(t) - 1)
+
+    pt63  = t.iloc[-1] / t.iloc[-1 - n63]
+    pt126 = t.iloc[-1] / t.iloc[-1 - n126]
+    pt189 = t.iloc[-1] / t.iloc[-1 - n189]
+    pt252 = t.iloc[-1] / t.iloc[-1 - n252]
+
+    ps63  = s.iloc[-1] / s.iloc[-1 - n63]
+    ps126 = s.iloc[-1] / s.iloc[-1 - n126]
+    ps189 = s.iloc[-1] / s.iloc[-1 - n189]
+    ps252 = s.iloc[-1] / s.iloc[-1 - n252]
+
+    rs_stock = 0.4 * pt63 + 0.2 * pt126 + 0.2 * pt189 + 0.2 * pt252
+    rs_ref   = 0.4 * ps63 + 0.2 * ps126 + 0.2 * ps189 + 0.2 * ps252
+
+    score = (rs_stock / rs_ref) * 100
+
+    if score >= first: return 99
+    if score <= svth:  return 1
+    if score < first and score >= scnd:
+        return round(f_attribute_percentile(score, first, scnd, 98, 90, 0.33))
+    if score < scnd  and score >= thrd:
+        return round(f_attribute_percentile(score, scnd,  thrd, 89, 70, 2.1))
+    if score < thrd  and score >= frth:
+        return round(f_attribute_percentile(score, thrd,  frth, 69, 50, 0))
+    if score < frth  and score >= ffth:
+        return round(f_attribute_percentile(score, frth,  ffth, 49, 30, 0))
+    if score < ffth  and score >= sxth:
+        return round(f_attribute_percentile(score, ffth,  sxth, 29, 10, 0))
+    if score < sxth  and score >= svth:
+        return round(f_attribute_percentile(score, sxth,  svth,  9,  2, 0))
+    return None
+
+
 # ── MA status helper ──────────────────────────────────────────────────────
 def ma_status(price: float, ma_val: float, ma_prev: float) -> str:
     if price >= ma_val:
@@ -181,7 +283,8 @@ def vars_histogram(close: pd.Series, window: int = 20, lookback: int = 50) -> li
 
 
 # ── Core per-ticker calculation ───────────────────────────────────────────
-def compute_row(ticker_def: dict, hist: pd.DataFrame) -> dict:
+def compute_row(ticker_def: dict, hist: pd.DataFrame,
+                spx_close: pd.Series, thresholds: list) -> dict:
     ticker = ticker_def["ticker"]
     name   = ticker_def["name"]
 
@@ -201,27 +304,25 @@ def compute_row(ticker_def: dict, hist: pd.DataFrame) -> dict:
 
     chg_5d = round((price / float(close.iloc[-6]) - 1) * 100, 4) if len(close) >= 6 else None
 
-    ema9_s    = ema(close, 9)
-    ema9_st   = ma_status(price, float(ema9_s.iloc[-1]), float(ema9_s.iloc[-2])) if len(ema9_s) >= 2 else None
+    ema9_s   = ema(close, 9)
+    ema9_st  = ma_status(price, float(ema9_s.iloc[-1]), float(ema9_s.iloc[-2])) if len(ema9_s) >= 2 else None
 
-    ema21_s   = ema(close, 21)
-    ema21_st  = ma_status(price, float(ema21_s.iloc[-1]), float(ema21_s.iloc[-2])) if len(ema21_s) >= 2 else None
+    ema21_s  = ema(close, 21)
+    ema21_st = ma_status(price, float(ema21_s.iloc[-1]), float(ema21_s.iloc[-2])) if len(ema21_s) >= 2 else None
 
     ema50_s   = ema(close, 50)
     ema50_val = float(ema50_s.iloc[-1]) if len(ema50_s) >= 2 else None
     ema50_st  = ma_status(price, ema50_val, float(ema50_s.iloc[-2])) if ema50_val and len(ema50_s) >= 2 else None
 
+    sma150_st = None
     if len(close) >= 151:
         sma150_s  = close.rolling(150).mean()
         sma150_st = ma_status(price, float(sma150_s.iloc[-1]), float(sma150_s.iloc[-2]))
-    else:
-        sma150_st = None
 
+    sma200_st = None
     if len(close) >= 201:
         sma200_s  = close.rolling(200).mean()
         sma200_st = ma_status(price, float(sma200_s.iloc[-1]), float(sma200_s.iloc[-2]))
-    else:
-        sma200_st = None
 
     atr_mult = None
     if ema50_val and len(close) >= 15:
@@ -240,6 +341,9 @@ def compute_row(ticker_def: dict, hist: pd.DataFrame) -> dict:
 
     vars_hist = vars_histogram(close, window=20, lookback=50) if len(close) >= 70 else []
 
+    # RS Rating — Fred6724 formula
+    rs_rating = compute_rs_rating(close, spx_close, thresholds)
+
     return {
         "ticker":       ticker,
         "name":         name,
@@ -253,12 +357,14 @@ def compute_row(ticker_def: dict, hist: pd.DataFrame) -> dict:
         "sma150":       sma150_st,
         "sma200":       sma200_st,
         "atr_multiple": atr_mult,
+        "rs_rating":    rs_rating,
         "vars_history": vars_hist,
     }
 
 
 # ── Download + process one section ───────────────────────────────────────
-def process_section(ticker_defs: list) -> list:
+def process_section(ticker_defs: list, spx_close: pd.Series,
+                    thresholds: list) -> list:
     rows = []
     for td in ticker_defs:
         sym = td["ticker"]
@@ -275,10 +381,11 @@ def process_section(ticker_defs: list) -> list:
                 continue
             if isinstance(hist.columns, pd.MultiIndex):
                 hist.columns = hist.columns.get_level_values(0)
-            row = compute_row(td, hist)
+            row = compute_row(td, hist, spx_close, thresholds)
             if row:
                 rows.append(row)
-                print(f"  ✓  {sym}")
+                rs_str = str(row['rs_rating']) if row['rs_rating'] else 'N/A'
+                print(f"  ✓  {sym}  (RS: {rs_str})")
         except Exception as e:
             print(f"  ✗  {sym}: {e}")
     return rows
@@ -290,6 +397,19 @@ def main():
     print("  Market Dashboard — fetch_data.py")
     print(f"  Run time: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}")
     print("=" * 55)
+
+    # Fetch SPX once and reuse across all sections
+    print("\n── Downloading SPX reference data ──")
+    spx_hist = yf.download("^GSPC", period="2y", interval="1d",
+                           auto_adjust=True, progress=False)
+    if isinstance(spx_hist.columns, pd.MultiIndex):
+        spx_hist.columns = spx_hist.columns.get_level_values(0)
+    spx_close = spx_hist["Close"].dropna()
+    print(f"  ✓  SPX: {len(spx_close)} bars")
+
+    # Fetch Fred6724's RS calibration thresholds once
+    print("\n── Fetching RS Rating thresholds (Fred6724) ──")
+    thresholds = fetch_rs_thresholds()
 
     sections = {
         "indices":     INDICES,
@@ -303,7 +423,7 @@ def main():
 
     for section_name, ticker_defs in sections.items():
         print(f"\n── {section_name.upper()} ({len(ticker_defs)} tickers) ──")
-        output[section_name] = process_section(ticker_defs)
+        output[section_name] = process_section(ticker_defs, spx_close, thresholds)
         print(f"   → {len(output[section_name])} rows written")
 
     with open(OUTPUT_FILE, "w") as f:
