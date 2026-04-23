@@ -8,12 +8,19 @@ OUTPUT_FILE = Path("data/indices.json")
 OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 # ── Ticker definitions ────────────────────────────────────────────────────
+
 INDICES = [
-    {"ticker": "SPY",  "name": "S&P 500 ETF"},
-    {"ticker": "QQQ",  "name": "Nasdaq 100 ETF"},
-    {"ticker": "IWM",  "name": "Russell 2000 ETF"},
-    {"ticker": "DIA",  "name": "Dow Jones ETF"},
-    {"ticker": "VTI",  "name": "Total Market ETF"},
+    {"ticker": "^VIX",   "name": "CBOE Volatility Index"},
+    {"ticker": "IWM",    "name": "Russell 2000 ETF"},
+    {"ticker": "DIA",    "name": "Dow Jones ETF"},
+    {"ticker": "SPY",    "name": "S&P 500 ETF"},
+    {"ticker": "QQQ",    "name": "Nasdaq 100 ETF"},
+    {"ticker": "QQQE",   "name": "Nasdaq 100 Equal Weight ETF"},
+    {"ticker": "EDOW",   "name": "Dow Jones Equal Weight ETF"},
+    {"ticker": "RSP",    "name": "S&P 500 Equal Weight ETF"},
+    {"ticker": "DX-Y.NYB", "name": "US Dollar Index"},
+    {"ticker": "ARKK",   "name": "ARK Innovation ETF"},
+    {"ticker": "^TNX",   "name": "US 10Y Treasury Yield"},
 ]
 
 SECTORS = [
@@ -44,35 +51,111 @@ SECTORS_EW = [
     {"ticker": "RSPC", "name": "EW Comm Services"},
 ]
 
+# Note: Commodities listed as XAGUSD, XAUUSD etc. are forex/spot symbols not
+# available on yfinance directly. Mapped to closest yfinance-tradable equivalents.
 COMMODITIES = [
-    {"ticker": "GLD",  "name": "Gold ETF"},
-    {"ticker": "SLV",  "name": "Silver ETF"},
-    {"ticker": "USO",  "name": "Oil ETF"},
-    {"ticker": "UNG",  "name": "Natural Gas ETF"},
-    {"ticker": "PDBC", "name": "Commodities ETF"},
-    {"ticker": "BTC-USD", "name": "Bitcoin"},
-    {"ticker": "ETH-USD", "name": "Ethereum"},
+    {"ticker": "SLV",    "name": "Silver (SLV ETF)"},           # XAGUSD
+    {"ticker": "GLD",    "name": "Gold (GLD ETF)"},             # XAUUSD
+    {"ticker": "PPLT",   "name": "Platinum (PPLT ETF)"},        # XPTUSD
+    {"ticker": "PALL",   "name": "Palladium (PALL ETF)"},       # XPDUSD
+    {"ticker": "USO",    "name": "WTI Crude Oil (USO ETF)"},    # WTI
+    {"ticker": "JJU",    "name": "Aluminum (JJU ETF)"},         # ALIUSD
+    {"ticker": "UNG",    "name": "Natural Gas (UNG ETF)"},      # XNGUSD
+    {"ticker": "CPER",   "name": "Copper (CPER ETF)"},          # XCUUSD
+    {"ticker": "SOL-USD","name": "Solana"},                     # SOLUSD
+    {"ticker": "BTC-USD","name": "Bitcoin"},                    # BTCUSD
+    {"ticker": "ETH-USD","name": "Ethereum"},                   # ETHUSD
 ]
 
 THEMATIC = [
-    {"ticker": "ARKK", "name": "ARK Innovation"},
-    {"ticker": "SOXX", "name": "Semiconductors"},
-    {"ticker": "IBB",  "name": "Biotech"},
-    {"ticker": "XBI",  "name": "Biotech (EW)"},
-    {"ticker": "ICLN", "name": "Clean Energy"},
-    {"ticker": "FINX", "name": "FinTech"},
-    {"ticker": "HACK", "name": "Cybersecurity"},
-    {"ticker": "ROBO", "name": "Robotics & AI"},
+    {"ticker": "SLV",   "name": "Silver ETF"},
+    {"ticker": "USO",   "name": "Oil ETF"},
+    {"ticker": "XOP",   "name": "Oil & Gas Exploration"},
+    {"ticker": "REMX",  "name": "Rare Earth Metals"},
+    {"ticker": "SILJ",  "name": "Silver Juniors"},
+    {"ticker": "GDXJ",  "name": "Gold Miners Junior"},
+    {"ticker": "DXYZ",  "name": "Destiny Tech100"},
+    {"ticker": "GDX",   "name": "Gold Miners"},
+    {"ticker": "COPX",  "name": "Copper Miners"},
+    {"ticker": "GLD",   "name": "Gold ETF"},
+    {"ticker": "UNG",   "name": "Natural Gas ETF"},
+    {"ticker": "SIL",   "name": "Silver Miners"},
+    {"ticker": "OIH",   "name": "Oil Services"},
+    {"ticker": "ITA",   "name": "Aerospace & Defense"},
+    {"ticker": "ITB",   "name": "Home Construction"},
+    {"ticker": "XBI",   "name": "Biotech (EW)"},
+    {"ticker": "LIT",   "name": "Lithium & Battery Tech"},
+    {"ticker": "AIQ",   "name": "AI & Big Data"},
+    {"ticker": "XME",   "name": "Metals & Mining"},
+    {"ticker": "XRT",   "name": "Retail"},
+    {"ticker": "XHE",   "name": "Health Care Equipment"},
+    {"ticker": "UFO",   "name": "Space"},
+    {"ticker": "IGV",   "name": "Software"},
+    {"ticker": "KWEB",  "name": "China Internet"},
+    {"ticker": "SMH",   "name": "Semiconductors"},
+    {"ticker": "MAGS",  "name": "Magnificent 7"},
+    {"ticker": "ARKK",  "name": "ARK Innovation"},
+    {"ticker": "IBIT",  "name": "iShares Bitcoin Trust"},
+    {"ticker": "MSOS",  "name": "Cannabis"},
+    {"ticker": "JETS",  "name": "Airlines"},
+    {"ticker": "ETHA",  "name": "iShares Ethereum Trust"},
+    {"ticker": "KRE",   "name": "Regional Banks"},
+    {"ticker": "WGMI",  "name": "Bitcoin Miners"},
+    {"ticker": "IEZ",   "name": "Oil Equipment & Services"},
+    {"ticker": "TAN",   "name": "Solar Energy"},
+    {"ticker": "ICLN",  "name": "Clean Energy"},
+    {"ticker": "DRNZ",  "name": "Drone Technology"},
+    {"ticker": "ARKG",  "name": "ARK Genomic Revolution"},
+    {"ticker": "CQQQ",  "name": "China Technology"},
+    {"ticker": "XAR",   "name": "Aerospace & Defense (EW)"},
+    {"ticker": "BOTZ",  "name": "Robotics & AI"},
+    {"ticker": "NUKZ",  "name": "Nuclear Energy"},
+    {"ticker": "ROBO",  "name": "Robotics Global"},
+    {"ticker": "NLR",   "name": "Nuclear & Uranium"},
+    {"ticker": "ARKQ",  "name": "ARK Autonomous Tech"},
+    {"ticker": "URA",   "name": "Uranium"},
+    {"ticker": "QTUM",  "name": "Quantum Computing"},
+    {"ticker": "XHB",   "name": "Homebuilders"},
+    {"ticker": "BLOK",  "name": "Blockchain"},
+    {"ticker": "CIBR",  "name": "Cybersecurity"},
+    {"ticker": "IAI",   "name": "Broker-Dealers"},
+    {"ticker": "ARKX",  "name": "ARK Space Exploration"},
+    {"ticker": "XSW",   "name": "Software & Services"},
+    {"ticker": "IHI",   "name": "Medical Devices"},
+    {"ticker": "IYT",   "name": "Transportation"},
+    {"ticker": "WCLD",  "name": "Cloud Computing"},
+    {"ticker": "ARKW",  "name": "ARK Next Generation Internet"},
+    {"ticker": "SOCL",  "name": "Social Media"},
+    {"ticker": "BAI",   "name": "Big AI"},
+    {"ticker": "CLOU",  "name": "Cloud Computing (Global X)"},
+    {"ticker": "XTL",   "name": "Telecom"},
+    {"ticker": "SLX",   "name": "Steel"},
+    {"ticker": "HACK",  "name": "Cybersecurity (ETFMG)"},
+    {"ticker": "PBW",   "name": "Clean Energy (Invesco)"},
+    {"ticker": "XHS",   "name": "Health Care Services"},
+    {"ticker": "PBJ",   "name": "Food & Beverage"},
+    {"ticker": "DRIV",  "name": "Electric & Autonomous Vehicles"},
+    {"ticker": "PAVE",  "name": "US Infrastructure"},
+    {"ticker": "KBE",   "name": "Bank ETF"},
+    {"ticker": "IDGT",  "name": "Industrials & Infrastructure"},
+    {"ticker": "PPH",   "name": "Pharma"},
+    {"ticker": "DTCR",  "name": "Data Center REIT"},
+    {"ticker": "IBUY",  "name": "E-Commerce"},
+    {"ticker": "KIE",   "name": "Insurance"},
+    {"ticker": "SPPP",  "name": "Platinum & Palladium"},
+    {"ticker": "COPJ",  "name": "Copper Juniors"},
+    {"ticker": "SOLZ",  "name": "Solana Strategy"},
+    {"ticker": "HYDR",  "name": "Hydrogen"},
+    {"ticker": "PSIL",  "name": "Psychedelics"},
 ]
 
 
 # ── MA status helper ──────────────────────────────────────────────────────
 def ma_status(price: float, ma_val: float, ma_prev: float) -> str:
-    """Return above_up / above_down / below_up / below_down."""
     if price >= ma_val:
-        return "above_up"   if ma_val >= ma_prev else "above_down"
+        return "above_up" if ma_val >= ma_prev else "above_down"
     else:
-        return "below_up"   if ma_val >= ma_prev else "below_down"
+        return "below_up" if ma_val >= ma_prev else "below_down"
 
 
 # ── EMA helper ────────────────────────────────────────────────────────────
@@ -82,10 +165,6 @@ def ema(series: pd.Series, period: int) -> pd.Series:
 
 # ── VARS histogram helper ─────────────────────────────────────────────────
 def vars_histogram(close: pd.Series, window: int = 20, lookback: int = 50) -> list:
-    """
-    Returns last `window` bars of VARS histogram values + SMA20 of those values.
-    VARS = close - SMA(close, lookback)  (simplified linear approximation)
-    """
     if len(close) < lookback + window:
         return []
     sma_lb = close.rolling(lookback).mean()
@@ -109,118 +188,99 @@ def compute_row(ticker_def: dict, hist: pd.DataFrame) -> dict:
     close  = hist["Close"].dropna()
     open_  = hist["Open"].dropna()
 
-    if len(close) < 210:
+    if len(close) < 30:
         print(f"  ⚠  {ticker}: not enough data ({len(close)} bars)")
         return None
 
-    price        = round(float(close.iloc[-1]), 4)
-    prev_close   = float(close.iloc[-2])
-    daily_chg    = round((price / prev_close - 1) * 100, 4)
+    price      = round(float(close.iloc[-1]), 4)
+    prev_close = float(close.iloc[-2])
+    daily_chg  = round((price / prev_close - 1) * 100, 4)
 
-    # Intraday change: open → close of last bar
-    last_open    = float(open_.iloc[-1])
+    last_open    = float(open_.iloc[-1]) if len(open_) > 0 else None
     intraday_chg = round((price / last_open - 1) * 100, 4) if last_open else None
 
-    # 5-day change (5 trading days back)
     chg_5d = round((price / float(close.iloc[-6]) - 1) * 100, 4) if len(close) >= 6 else None
 
-    # ── Moving averages ───────────────────────────────────────────────────
-    # EMA 9
-    ema9_s     = ema(close, 9)
-    ema9_val   = float(ema9_s.iloc[-1])
-    ema9_prev  = float(ema9_s.iloc[-2])
-    ema9_st    = ma_status(price, ema9_val, ema9_prev)
+    ema9_s    = ema(close, 9)
+    ema9_st   = ma_status(price, float(ema9_s.iloc[-1]), float(ema9_s.iloc[-2])) if len(ema9_s) >= 2 else None
 
-    # EMA 21
-    ema21_s    = ema(close, 21)
-    ema21_val  = float(ema21_s.iloc[-1])
-    ema21_prev = float(ema21_s.iloc[-2])
-    ema21_st   = ma_status(price, ema21_val, ema21_prev)
+    ema21_s   = ema(close, 21)
+    ema21_st  = ma_status(price, float(ema21_s.iloc[-1]), float(ema21_s.iloc[-2])) if len(ema21_s) >= 2 else None
 
-    # EMA 50
-    ema50_s    = ema(close, 50)
-    ema50_val  = float(ema50_s.iloc[-1])
-    ema50_prev = float(ema50_s.iloc[-2])
-    ema50_st   = ma_status(price, ema50_val, ema50_prev)
+    ema50_s   = ema(close, 50)
+    ema50_val = float(ema50_s.iloc[-1]) if len(ema50_s) >= 2 else None
+    ema50_st  = ma_status(price, ema50_val, float(ema50_s.iloc[-2])) if ema50_val and len(ema50_s) >= 2 else None
 
-    # SMA 150
-    sma150_s   = close.rolling(150).mean()
-    sma150_val = float(sma150_s.iloc[-1])
-    sma150_prev= float(sma150_s.iloc[-2])
-    sma150_st  = ma_status(price, sma150_val, sma150_prev)
+    if len(close) >= 151:
+        sma150_s  = close.rolling(150).mean()
+        sma150_st = ma_status(price, float(sma150_s.iloc[-1]), float(sma150_s.iloc[-2]))
+    else:
+        sma150_st = None
 
-    # SMA 200
-    sma200_s   = close.rolling(200).mean()
-    sma200_val = float(sma200_s.iloc[-1])
-    sma200_prev= float(sma200_s.iloc[-2])
-    sma200_st  = ma_status(price, sma200_val, sma200_prev)
+    if len(close) >= 201:
+        sma200_s  = close.rolling(200).mean()
+        sma200_st = ma_status(price, float(sma200_s.iloc[-1]), float(sma200_s.iloc[-2]))
+    else:
+        sma200_st = None
 
-    # ── ATR14 / EMA50 multiple ────────────────────────────────────────────
-    high  = hist["High"].dropna()
-    low_  = hist["Low"].dropna()
-    tr    = pd.concat([
-        high - low_,
-        (high - close.shift(1)).abs(),
-        (low_ - close.shift(1)).abs()
-    ], axis=1).max(axis=1)
-    atr14     = float(tr.rolling(14).mean().iloc[-1])
-    atr_mult  = round((price - ema50_val) / atr14, 4) if atr14 else None
+    atr_mult = None
+    if ema50_val and len(close) >= 15:
+        try:
+            high = hist["High"].dropna()
+            low_ = hist["Low"].dropna()
+            tr   = pd.concat([
+                high - low_,
+                (high - close.shift(1)).abs(),
+                (low_ - close.shift(1)).abs()
+            ], axis=1).max(axis=1)
+            atr14    = float(tr.rolling(14).mean().iloc[-1])
+            atr_mult = round((price - ema50_val) / atr14, 4) if atr14 else None
+        except Exception:
+            atr_mult = None
 
-    # ── VARS histogram (20 bars × window=20, lookback=50) ─────────────────
-    vars_hist = vars_histogram(close, window=20, lookback=50)
+    vars_hist = vars_histogram(close, window=20, lookback=50) if len(close) >= 70 else []
 
     return {
-        "ticker":        ticker,
-        "name":          name,
-        "price":         price,
-        "daily_chg":     daily_chg,
-        "intraday_chg":  intraday_chg,
-        "chg_5d":        chg_5d,
-        "ema9":          ema9_st,       # ← was ema10
-        "ema21":         ema21_st,      # ← was ema20
-        "ema50":         ema50_st,      # ← was sma50
-        "sma150":        sma150_st,     # ← new
-        "sma200":        sma200_st,
-        "atr_multiple":  atr_mult,
-        "vars_history":  vars_hist,
+        "ticker":       ticker,
+        "name":         name,
+        "price":        price,
+        "daily_chg":    daily_chg,
+        "intraday_chg": intraday_chg,
+        "chg_5d":       chg_5d,
+        "ema9":         ema9_st,
+        "ema21":        ema21_st,
+        "ema50":        ema50_st,
+        "sma150":       sma150_st,
+        "sma200":       sma200_st,
+        "atr_multiple": atr_mult,
+        "vars_history": vars_hist,
     }
 
 
-# ── Download + process a list of tickers ─────────────────────────────────
+# ── Download + process one section ───────────────────────────────────────
 def process_section(ticker_defs: list) -> list:
-    symbols = [t["ticker"] for t in ticker_defs]
-    print(f"  Downloading: {symbols}")
-
-    raw = yf.download(
-        symbols,
-        period="2y",          # 2 years to cover SMA200 + buffer
-        interval="1d",
-        auto_adjust=True,
-        progress=False,
-        group_by="ticker",
-    )
-
     rows = []
     for td in ticker_defs:
         sym = td["ticker"]
         try:
-            # Handle single vs multi-ticker yfinance response
-            if len(symbols) == 1:
-                hist = raw
-            else:
-                hist = raw[sym] if sym in raw.columns.get_level_values(0) else None
-
+            hist = yf.download(
+                sym,
+                period="2y",
+                interval="1d",
+                auto_adjust=True,
+                progress=False,
+            )
             if hist is None or hist.empty:
                 print(f"  ⚠  {sym}: no data returned")
                 continue
-
+            if isinstance(hist.columns, pd.MultiIndex):
+                hist.columns = hist.columns.get_level_values(0)
             row = compute_row(td, hist)
             if row:
                 rows.append(row)
                 print(f"  ✓  {sym}")
         except Exception as e:
             print(f"  ✗  {sym}: {e}")
-
     return rows
 
 
@@ -242,14 +302,15 @@ def main():
     output = {"updated": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")}
 
     for section_name, ticker_defs in sections.items():
-        print(f"\n── {section_name.upper()} ──")
+        print(f"\n── {section_name.upper()} ({len(ticker_defs)} tickers) ──")
         output[section_name] = process_section(ticker_defs)
+        print(f"   → {len(output[section_name])} rows written")
 
     with open(OUTPUT_FILE, "w") as f:
         json.dump(output, f, indent=2)
 
-    print(f"\n✅  Done → {OUTPUT_FILE}")
-    print(f"    Sections: {', '.join(f'{k}: {len(v)} rows' for k, v in output.items() if isinstance(v, list))}")
+    total = sum(len(v) for v in output.values() if isinstance(v, list))
+    print(f"\n✅  Done → {OUTPUT_FILE}  ({total} total rows)")
 
 
 if __name__ == "__main__":
