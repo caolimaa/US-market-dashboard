@@ -154,71 +154,108 @@ THEMATIC = [
 # ── RS universe: Fred6724's live CSV ─────────────────────────────────────
 RS_CSV_URL = "https://raw.githubusercontent.com/Fred6724/rs-log/main/output/rs_stocks.csv"
 
+# Hardcoded fallback percentile curve derived from Fred6724's known distribution.
+# Maps raw RS score (no SPX division) → percentile rating (1-99).
+# Calibrated from observed stats: range [0-547], mean ~100, p50≈100, p90≈155.
+_FALLBACK_CURVE = [
+    (0,   1), (30,  3), (40,  5), (50,  8),
+    (60, 12), (70, 20), (80, 30), (90, 40),
+    (95, 45), (100, 50), (105, 55), (110, 60),
+    (118, 67), (128, 73), (140, 80), (155, 87),
+    (175, 92), (200, 95), (250, 97), (300, 98), (400, 99),
+]
+
+def _curve_rating(score):
+    """Piecewise linear interpolation of raw RS score → rating (1-99)."""
+    xs = [p[0] for p in _FALLBACK_CURVE]
+    ys = [p[1] for p in _FALLBACK_CURVE]
+    if score <= xs[0]:  return ys[0]
+    if score >= xs[-1]: return ys[-1]
+    for i in range(len(xs) - 1):
+        if xs[i] <= score <= xs[i+1]:
+            t = (score - xs[i]) / (xs[i+1] - xs[i])
+            return max(1, min(99, round(ys[i] + t * (ys[i+1] - ys[i]))))
+    return 50
+
 
 def fetch_rs_scores_array():
-    try:
-        resp = requests.get(RS_CSV_URL, timeout=15)
-        resp.raise_for_status()
-        df = pd.read_csv(StringIO(resp.text))
-        scores = np.sort(df["Relative Strength"].dropna().values)
-        print(f"  RS universe: {len(scores)} stocks  [{scores[0]:.2f} – {scores[-1]:.2f}]")
-        return scores
-    except Exception as e:
-        print(f"  Could not fetch RS universe ({e}). RS Rating will be None.")
-        return None
+    """
+    Download Fred6724's rs_stocks.csv (raw RS scores, no SPX division).
+    Retries 3x with timeout. Returns sorted numpy array, or None if
+    unavailable (score_to_rating will fall back to hardcoded curve).
+    """
+    for attempt in range(3):
+        try:
+            resp = requests.get(RS_CSV_URL, timeout=12)
+            if resp.status_code == 200:
+                df = pd.read_csv(StringIO(resp.text))
+                scores = np.sort(df["Relative Strength"].dropna().values)
+                print(f"  RS CSV loaded: {len(scores)} stocks  "
+                      f"[{scores[0]:.1f} – {scores[-1]:.1f}]")
+                return scores
+        except Exception:
+            pass
+    print("  RS CSV unavailable — using fallback percentile curve.")
+    return None
 
 
 # ── RS Score helpers ──────────────────────────────────────────────────────
 
-def compute_rs_score(ticker_close, spx_close):
-    combined = pd.concat([ticker_close, spx_close], axis=1).dropna()
-    combined.columns = ["t", "s"]
-    if len(combined) < 253:
+def compute_rs_score(close):
+    """
+    Raw RS performance score matching Fred6724's formula exactly:
+      (0.4×P63d + 0.2×P126d + 0.2×P189d + 0.2×P252d) × 100
+    No SPX division — this is the raw number comparable to Fred6724's
+    universe CSV "Relative Strength" column (range ~0-550).
+    Requires >=253 bars. Returns float or None.
+    """
+    if len(close) < 253:
         return None
-    t = combined["t"]
-    s = combined["s"]
-    n63  = min(63,  len(t) - 1)
-    n126 = min(126, len(t) - 1)
-    n189 = min(189, len(t) - 1)
-    n252 = min(252, len(t) - 1)
-    rs_stock = (0.4 * (t.iloc[-1] / t.iloc[-1-n63])
-              + 0.2 * (t.iloc[-1] / t.iloc[-1-n126])
-              + 0.2 * (t.iloc[-1] / t.iloc[-1-n189])
-              + 0.2 * (t.iloc[-1] / t.iloc[-1-n252]))
-    rs_ref   = (0.4 * (s.iloc[-1] / s.iloc[-1-n63])
-              + 0.2 * (s.iloc[-1] / s.iloc[-1-n126])
-              + 0.2 * (s.iloc[-1] / s.iloc[-1-n189])
-              + 0.2 * (s.iloc[-1] / s.iloc[-1-n252]))
-    return float((rs_stock / rs_ref) * 100) if rs_ref != 0 else None
-
-
-def compute_1m_rs_score(ticker_close, spx_close, bars_back=0):
-    combined = pd.concat([ticker_close, spx_close], axis=1).dropna()
-    combined.columns = ["t", "s"]
-    if bars_back > 0:
-        combined = combined.iloc[:-bars_back]
-    if len(combined) < 22:
-        return None
-    t   = combined["t"]
-    s   = combined["s"]
-    n21 = min(21, len(t) - 1)
-    pt21 = t.iloc[-1] / t.iloc[-1 - n21]
-    ps21 = s.iloc[-1] / s.iloc[-1 - n21]
-    return float((pt21 / ps21) * 100) if ps21 != 0 else None
+    return float(
+        (0.4 * (close.iloc[-1] / close.iloc[-63])
+       + 0.2 * (close.iloc[-1] / close.iloc[-126])
+       + 0.2 * (close.iloc[-1] / close.iloc[-189])
+       + 0.2 * (close.iloc[-1] / close.iloc[-252])) * 100
+    )
 
 
 def score_to_rating(score, scores_array):
-    if score is None or scores_array is None:
+    """
+    Convert raw RS score to 1-99 rating.
+    - If CSV array is available: binary searchsorted percentile rank.
+    - If CSV is down: falls back to hardcoded curve. Never returns None
+      when score is valid — RS rating always shows.
+    """
+    if score is None:
         return None
-    n    = len(scores_array)
-    rank = int(np.searchsorted(scores_array, score, side="left"))
-    return max(1, min(99, round((rank / n) * 100)))
+    if scores_array is not None:
+        n    = len(scores_array)
+        rank = int(np.searchsorted(scores_array, score, side="left"))
+        return max(1, min(99, round((rank / n) * 100)))
+    return _curve_rating(score)
 
 
-def compute_1m_rs_new_high(ticker_close, spx_close):
+def compute_1m_rs_score(close, bars_back=0):
+    """
+    1-month raw RS score: simple 21-day price return × 100.
+    bars_back=0 = today, bars_back=N = N trading days ago.
+    Self-contained — no SPX needed.
+    """
+    c = close.iloc[:-bars_back] if bars_back > 0 else close
+    if len(c) < 22:
+        return None
+    return float((c.iloc[-1] / c.iloc[-22]) * 100)
+
+
+def compute_1m_rs_new_high(close):
+    """
+    Returns True if today's 1M RS score is strictly higher than
+    all 21 prior trading days — a 1-month RS momentum new high.
+    Returns None if insufficient data.
+    """
     window = []
     for i in range(21, -1, -1):
-        sc = compute_1m_rs_score(ticker_close, spx_close, bars_back=i)
+        sc = compute_1m_rs_score(close, bars_back=i)
         window.append(sc)
     today = window[-1]
     past  = [r for r in window[:-1] if r is not None]
@@ -258,7 +295,7 @@ def vars_histogram(close, window=20, lookback=50):
 
 # ── Core per-ticker calculation ───────────────────────────────────────────
 
-def compute_row(ticker_def, hist, spx_close, rs_scores):
+def compute_row(ticker_def, hist, rs_scores):
     ticker = ticker_def["ticker"]
     name   = ticker_def["name"]
 
@@ -280,7 +317,7 @@ def compute_row(ticker_def, hist, spx_close, rs_scores):
     ema9_st  = ma_status(price, float(ema9_s.iloc[-1]),  float(ema9_s.iloc[-2]))  if len(ema9_s)  >= 2 else None
     ema21_s  = ema(close, 21)
     ema21_st = ma_status(price, float(ema21_s.iloc[-1]), float(ema21_s.iloc[-2])) if len(ema21_s) >= 2 else None
-    ema50_s   = ema(close, 50)
+    ema50_s  = ema(close, 50)
     ema50_val = float(ema50_s.iloc[-1]) if len(ema50_s) >= 2 else None
     ema50_st  = ma_status(price, ema50_val, float(ema50_s.iloc[-2])) if ema50_val and len(ema50_s) >= 2 else None
 
@@ -311,9 +348,9 @@ def compute_row(ticker_def, hist, spx_close, rs_scores):
 
     vars_hist = vars_histogram(close, window=20, lookback=50) if len(close) >= 70 else []
 
-    rs_score       = compute_rs_score(close, spx_close)
+    rs_score       = compute_rs_score(close)
     rs_rating      = score_to_rating(rs_score, rs_scores)
-    rs_1m_new_high = compute_1m_rs_new_high(close, spx_close)
+    rs_1m_new_high = compute_1m_rs_new_high(close)
 
     return {
         "ticker":          ticker,
@@ -336,7 +373,7 @@ def compute_row(ticker_def, hist, spx_close, rs_scores):
 
 # ── Download + process one section ───────────────────────────────────────
 
-def process_section(ticker_defs, spx_close, rs_scores):
+def process_section(ticker_defs, rs_scores):
     rows = []
     for td in ticker_defs:
         sym = td["ticker"]
@@ -348,7 +385,7 @@ def process_section(ticker_defs, spx_close, rs_scores):
                 continue
             if isinstance(hist.columns, pd.MultiIndex):
                 hist.columns = hist.columns.get_level_values(0)
-            row = compute_row(td, hist, spx_close, rs_scores)
+            row = compute_row(td, hist, rs_scores)
             if row:
                 rows.append(row)
                 rs_str = str(row["rs_rating"]) if row["rs_rating"] is not None else "N/A"
@@ -367,14 +404,6 @@ def main():
     print(f"  Run: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}")
     print("=" * 55)
 
-    print("\n── SPX reference ──")
-    spx_hist = yf.download("^GSPC", period="2y", interval="1d",
-                           auto_adjust=True, progress=False)
-    if isinstance(spx_hist.columns, pd.MultiIndex):
-        spx_hist.columns = spx_hist.columns.get_level_values(0)
-    spx_close = spx_hist["Close"].dropna()
-    print(f"  SPX: {len(spx_close)} bars")
-
     print("\n── RS universe (Fred6724) ──")
     rs_scores = fetch_rs_scores_array()
 
@@ -390,7 +419,7 @@ def main():
 
     for section_name, ticker_defs in sections.items():
         print(f"\n── {section_name.upper()} ({len(ticker_defs)} tickers) ──")
-        output[section_name] = process_section(ticker_defs, spx_close, rs_scores)
+        output[section_name] = process_section(ticker_defs, rs_scores)
         print(f"   {len(output[section_name])} rows written")
 
     with open(OUTPUT_FILE, "w") as f:
