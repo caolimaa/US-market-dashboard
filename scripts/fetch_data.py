@@ -1,7 +1,9 @@
 import yfinance as yf
 import pandas as pd
+import numpy as np
 import json
 import requests
+from io import StringIO
 from datetime import datetime
 from pathlib import Path
 
@@ -149,107 +151,71 @@ THEMATIC = [
 ]
 
 
-# ── Fred6724 RS Rating calibration thresholds ─────────────────────────────
-# Pulled from his public rs-log repo — same thresholds his Pine Script uses.
-# Falls back to his last known approximate values if the fetch fails.
-FALLBACK_THRESHOLDS = [195.93, 117.11, 99.04, 91.66, 80.96, 53.64, 24.86]
+# ── RS Rating: Fred6724's live universe ───────────────────────────────────
+RS_CSV_URL = "https://raw.githubusercontent.com/Fred6725/rs-log/main/output/rs_stocks.csv"
 
-def fetch_rs_thresholds() -> list:
+def fetch_rs_scores_array() -> np.ndarray | None:
     """
-    Fetch Fred6724's 7 RS calibration thresholds from his public GitHub CSV.
-    Returns [first, scnd, thrd, frth, ffth, sxth, svth] — same order as Pine Script.
+    Download Fred6724's rs_stocks.csv (auto-updated daily via GitHub Actions)
+    and return a sorted numpy array of all RS scores in the ~5800 stock universe.
+    Used for direct percentile lookup — no approximation needed.
     """
-    url = "https://raw.githubusercontent.com/Fred6725/rs-log/main/output/rs_stocks.csv"
     try:
-        resp = requests.get(url, timeout=10)
+        resp = requests.get(RS_CSV_URL, timeout=15)
         resp.raise_for_status()
-        lines = [l.strip() for l in resp.text.strip().split('\n') if l.strip()]
-        # The CSV contains RS scores for thousands of stocks; we extract the
-        # boundary percentiles at ranks 99, 90, 70, 50, 30, 10, 1
-        df = pd.read_csv(pd.io.common.StringIO(resp.text))
-        # Column expected: 'rs_score' or similar — try to find it
-        score_col = [c for c in df.columns if 'score' in c.lower() or 'rs' in c.lower()]
-        if score_col:
-            scores = df[score_col[0]].dropna().sort_values(ascending=False).reset_index(drop=True)
-            n = len(scores)
-            def pct_val(p): return float(scores.iloc[max(0, int(n * (1 - p/100)) - 1)])
-            thresholds = [pct_val(99), pct_val(90), pct_val(70), pct_val(50),
-                          pct_val(30), pct_val(10), pct_val(1)]
-            print(f"  ✓  RS thresholds fetched from Fred6724 repo: {[round(t,2) for t in thresholds]}")
-            return thresholds
+        df = pd.read_csv(StringIO(resp.text))
+        scores = df["Relative Strength"].dropna().values
+        scores_sorted = np.sort(scores)
+        print(f"  ✓  RS universe: {len(scores_sorted)} stocks, "
+              f"range [{scores_sorted[0]:.2f} – {scores_sorted[-1]:.2f}]")
+        return scores_sorted
     except Exception as e:
-        print(f"  ⚠  Could not fetch RS thresholds ({e}), using fallback values.")
-    return FALLBACK_THRESHOLDS
-
-
-def f_attribute_percentile(score, taller, smaller, range_up, range_dn, weight):
-    """Python port of Fred6724's f_attributePercentile() Pine Script function."""
-    total = score + (score - smaller) * weight
-    if total > taller - 1:
-        total = taller - 1
-    k1 = smaller / range_dn
-    k2 = (taller - 1) / range_up
-    k3 = (k1 - k2) / (taller - 1 - smaller)
-    rating = total / (k1 - k3 * (score - smaller))
-    return max(range_dn, min(range_up, rating))
-
-
-def compute_rs_rating(ticker_close: pd.Series, spx_close: pd.Series,
-                      thresholds: list) -> int | None:
-    """
-    Compute Fred6724's RS Rating (1–99) for a ticker given its daily close
-    series and the SPX daily close series. Returns None if insufficient data.
-    """
-    first, scnd, thrd, frth, ffth, sxth, svth = thresholds
-
-    min_bars = max(bar_index for bar_index in [63, 126, 189, 252])
-    if len(ticker_close) < min_bars + 1 or len(spx_close) < min_bars + 1:
+        print(f"  ⚠  Could not fetch RS universe ({e}). RS Rating will be None.")
         return None
 
-    # Align series
+
+def compute_rs_score(ticker_close: pd.Series, spx_close: pd.Series) -> float | None:
+    """
+    Fred6724's RS performance score formula:
+      0.4 × P(63d) + 0.2 × P(126d) + 0.2 × P(189d) + 0.2 × P(252d)
+    divided by same for SPX, scaled × 100.
+    Requires at least 253 aligned bars.
+    """
     combined = pd.concat([ticker_close, spx_close], axis=1).dropna()
-    combined.columns = ['ticker', 'spx']
+    combined.columns = ["t", "s"]
     if len(combined) < 253:
         return None
-
-    t = combined['ticker']
-    s = combined['spx']
-
+    t = combined["t"]
+    s = combined["s"]
     n63  = min(63,  len(t) - 1)
     n126 = min(126, len(t) - 1)
     n189 = min(189, len(t) - 1)
     n252 = min(252, len(t) - 1)
+    rs_stock = (0.4 * (t.iloc[-1] / t.iloc[-1-n63])
+              + 0.2 * (t.iloc[-1] / t.iloc[-1-n126])
+              + 0.2 * (t.iloc[-1] / t.iloc[-1-n189])
+              + 0.2 * (t.iloc[-1] / t.iloc[-1-n252]))
+    rs_ref   = (0.4 * (s.iloc[-1] / s.iloc[-1-n63])
+              + 0.2 * (s.iloc[-1] / s.iloc[-1-n126])
+              + 0.2 * (s.iloc[-1] / s.iloc[-1-n189])
+              + 0.2 * (s.iloc[-1] / s.iloc[-1-n252]))
+    if rs_ref == 0:
+        return None
+    return float((rs_stock / rs_ref) * 100)
 
-    pt63  = t.iloc[-1] / t.iloc[-1 - n63]
-    pt126 = t.iloc[-1] / t.iloc[-1 - n126]
-    pt189 = t.iloc[-1] / t.iloc[-1 - n189]
-    pt252 = t.iloc[-1] / t.iloc[-1 - n252]
 
-    ps63  = s.iloc[-1] / s.iloc[-1 - n63]
-    ps126 = s.iloc[-1] / s.iloc[-1 - n126]
-    ps189 = s.iloc[-1] / s.iloc[-1 - n189]
-    ps252 = s.iloc[-1] / s.iloc[-1 - n252]
-
-    rs_stock = 0.4 * pt63 + 0.2 * pt126 + 0.2 * pt189 + 0.2 * pt252
-    rs_ref   = 0.4 * ps63 + 0.2 * ps126 + 0.2 * ps189 + 0.2 * ps252
-
-    score = (rs_stock / rs_ref) * 100
-
-    if score >= first: return 99
-    if score <= svth:  return 1
-    if score < first and score >= scnd:
-        return round(f_attribute_percentile(score, first, scnd, 98, 90, 0.33))
-    if score < scnd  and score >= thrd:
-        return round(f_attribute_percentile(score, scnd,  thrd, 89, 70, 2.1))
-    if score < thrd  and score >= frth:
-        return round(f_attribute_percentile(score, thrd,  frth, 69, 50, 0))
-    if score < frth  and score >= ffth:
-        return round(f_attribute_percentile(score, frth,  ffth, 49, 30, 0))
-    if score < ffth  and score >= sxth:
-        return round(f_attribute_percentile(score, ffth,  sxth, 29, 10, 0))
-    if score < sxth  and score >= svth:
-        return round(f_attribute_percentile(score, sxth,  svth,  9,  2, 0))
-    return None
+def score_to_rating(score: float, scores_array: np.ndarray) -> int | None:
+    """
+    Direct percentile rank of score against the full universe distribution.
+    Uses binary search (np.searchsorted) for O(log n) lookup.
+    Returns integer 1–99.
+    """
+    if score is None or scores_array is None:
+        return None
+    n = len(scores_array)
+    rank_from_bottom = int(np.searchsorted(scores_array, score, side="left"))
+    percentile = (rank_from_bottom / n) * 100
+    return max(1, min(99, round(percentile)))
 
 
 # ── MA status helper ──────────────────────────────────────────────────────
@@ -260,12 +226,10 @@ def ma_status(price: float, ma_val: float, ma_prev: float) -> str:
         return "below_up" if ma_val >= ma_prev else "below_down"
 
 
-# ── EMA helper ────────────────────────────────────────────────────────────
 def ema(series: pd.Series, period: int) -> pd.Series:
     return series.ewm(span=period, adjust=False).mean()
 
 
-# ── VARS histogram helper ─────────────────────────────────────────────────
 def vars_histogram(close: pd.Series, window: int = 20, lookback: int = 50) -> list:
     if len(close) < lookback + window:
         return []
@@ -284,12 +248,12 @@ def vars_histogram(close: pd.Series, window: int = 20, lookback: int = 50) -> li
 
 # ── Core per-ticker calculation ───────────────────────────────────────────
 def compute_row(ticker_def: dict, hist: pd.DataFrame,
-                spx_close: pd.Series, thresholds: list) -> dict:
+                spx_close: pd.Series, rs_scores: np.ndarray) -> dict:
     ticker = ticker_def["ticker"]
     name   = ticker_def["name"]
 
-    close  = hist["Close"].dropna()
-    open_  = hist["Open"].dropna()
+    close = hist["Close"].dropna()
+    open_ = hist["Open"].dropna()
 
     if len(close) < 30:
         print(f"  ⚠  {ticker}: not enough data ({len(close)} bars)")
@@ -301,8 +265,7 @@ def compute_row(ticker_def: dict, hist: pd.DataFrame,
 
     last_open    = float(open_.iloc[-1]) if len(open_) > 0 else None
     intraday_chg = round((price / last_open - 1) * 100, 4) if last_open else None
-
-    chg_5d = round((price / float(close.iloc[-6]) - 1) * 100, 4) if len(close) >= 6 else None
+    chg_5d       = round((price / float(close.iloc[-6]) - 1) * 100, 4) if len(close) >= 6 else None
 
     ema9_s   = ema(close, 9)
     ema9_st  = ma_status(price, float(ema9_s.iloc[-1]), float(ema9_s.iloc[-2])) if len(ema9_s) >= 2 else None
@@ -341,8 +304,8 @@ def compute_row(ticker_def: dict, hist: pd.DataFrame,
 
     vars_hist = vars_histogram(close, window=20, lookback=50) if len(close) >= 70 else []
 
-    # RS Rating — Fred6724 formula
-    rs_rating = compute_rs_rating(close, spx_close, thresholds)
+    rs_score  = compute_rs_score(close, spx_close)
+    rs_rating = score_to_rating(rs_score, rs_scores)
 
     return {
         "ticker":       ticker,
@@ -364,27 +327,22 @@ def compute_row(ticker_def: dict, hist: pd.DataFrame,
 
 # ── Download + process one section ───────────────────────────────────────
 def process_section(ticker_defs: list, spx_close: pd.Series,
-                    thresholds: list) -> list:
+                    rs_scores: np.ndarray) -> list:
     rows = []
     for td in ticker_defs:
         sym = td["ticker"]
         try:
-            hist = yf.download(
-                sym,
-                period="2y",
-                interval="1d",
-                auto_adjust=True,
-                progress=False,
-            )
+            hist = yf.download(sym, period="2y", interval="1d",
+                               auto_adjust=True, progress=False)
             if hist is None or hist.empty:
                 print(f"  ⚠  {sym}: no data returned")
                 continue
             if isinstance(hist.columns, pd.MultiIndex):
                 hist.columns = hist.columns.get_level_values(0)
-            row = compute_row(td, hist, spx_close, thresholds)
+            row = compute_row(td, hist, spx_close, rs_scores)
             if row:
                 rows.append(row)
-                rs_str = str(row['rs_rating']) if row['rs_rating'] else 'N/A'
+                rs_str = str(row["rs_rating"]) if row["rs_rating"] is not None else "N/A"
                 print(f"  ✓  {sym}  (RS: {rs_str})")
         except Exception as e:
             print(f"  ✗  {sym}: {e}")
@@ -398,8 +356,7 @@ def main():
     print(f"  Run time: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}")
     print("=" * 55)
 
-    # Fetch SPX once and reuse across all sections
-    print("\n── Downloading SPX reference data ──")
+    print("\n── Downloading SPX reference ──")
     spx_hist = yf.download("^GSPC", period="2y", interval="1d",
                            auto_adjust=True, progress=False)
     if isinstance(spx_hist.columns, pd.MultiIndex):
@@ -407,9 +364,8 @@ def main():
     spx_close = spx_hist["Close"].dropna()
     print(f"  ✓  SPX: {len(spx_close)} bars")
 
-    # Fetch Fred6724's RS calibration thresholds once
-    print("\n── Fetching RS Rating thresholds (Fred6724) ──")
-    thresholds = fetch_rs_thresholds()
+    print("\n── Fetching RS universe (Fred6724) ──")
+    rs_scores = fetch_rs_scores_array()
 
     sections = {
         "indices":     INDICES,
@@ -423,7 +379,7 @@ def main():
 
     for section_name, ticker_defs in sections.items():
         print(f"\n── {section_name.upper()} ({len(ticker_defs)} tickers) ──")
-        output[section_name] = process_section(ticker_defs, spx_close, thresholds)
+        output[section_name] = process_section(ticker_defs, spx_close, rs_scores)
         print(f"   → {len(output[section_name])} rows written")
 
     with open(OUTPUT_FILE, "w") as f:
