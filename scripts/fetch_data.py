@@ -205,8 +205,7 @@ def compute_rs_score(close):
     """
     Raw RS performance score matching Fred6724's formula exactly:
       (0.4×P63d + 0.2×P126d + 0.2×P189d + 0.2×P252d) × 100
-    No SPX division — this is the raw number comparable to Fred6724's
-    universe CSV "Relative Strength" column (range ~0-550).
+    No SPX division — comparable to Fred6724's universe CSV.
     Requires >=253 bars. Returns float or None.
     """
     if len(close) < 253:
@@ -222,9 +221,8 @@ def compute_rs_score(close):
 def score_to_rating(score, scores_array):
     """
     Convert raw RS score to 1-99 rating.
-    - If CSV array is available: binary searchsorted percentile rank.
-    - If CSV is down: falls back to hardcoded curve. Never returns None
-      when score is valid — RS rating always shows.
+    Uses live CSV distribution when available, fallback curve otherwise.
+    Never returns None when score is valid.
     """
     if score is None:
         return None
@@ -237,9 +235,8 @@ def score_to_rating(score, scores_array):
 
 def compute_1m_rs_score(close, bars_back=0):
     """
-    1-month raw RS score: simple 21-day price return × 100.
+    1-month raw RS score: 21-day price return × 100.
     bars_back=0 = today, bars_back=N = N trading days ago.
-    Self-contained — no SPX needed.
     """
     c = close.iloc[:-bars_back] if bars_back > 0 else close
     if len(c) < 22:
@@ -250,8 +247,7 @@ def compute_1m_rs_score(close, bars_back=0):
 def compute_1m_rs_new_high(close):
     """
     Returns True if today's 1M RS score is strictly higher than
-    all 21 prior trading days — a 1-month RS momentum new high.
-    Returns None if insufficient data.
+    all 21 prior trading days. Returns None if insufficient data.
     """
     window = []
     for i in range(21, -1, -1):
@@ -264,7 +260,7 @@ def compute_1m_rs_new_high(close):
     return bool(today > max(past))
 
 
-# ── MA status helpers ─────────────────────────────────────────────────────
+# ── MA / ATR helpers ──────────────────────────────────────────────────────
 
 def ma_status(price, ma_val, ma_prev):
     if price >= ma_val:
@@ -313,13 +309,21 @@ def compute_row(ticker_def, hist, rs_scores):
     intraday_chg = round((price / last_open - 1) * 100, 4) if last_open else None
     chg_5d       = round((price / float(close.iloc[-6]) - 1) * 100, 4) if len(close) >= 6 else None
 
+    # EMAs for MA status columns
     ema9_s   = ema(close, 9)
     ema9_st  = ma_status(price, float(ema9_s.iloc[-1]),  float(ema9_s.iloc[-2]))  if len(ema9_s)  >= 2 else None
     ema21_s  = ema(close, 21)
     ema21_st = ma_status(price, float(ema21_s.iloc[-1]), float(ema21_s.iloc[-2])) if len(ema21_s) >= 2 else None
     ema50_s  = ema(close, 50)
-    ema50_val = float(ema50_s.iloc[-1]) if len(ema50_s) >= 2 else None
-    ema50_st  = ma_status(price, ema50_val, float(ema50_s.iloc[-2])) if ema50_val and len(ema50_s) >= 2 else None
+    ema50_st = ma_status(price, float(ema50_s.iloc[-1]), float(ema50_s.iloc[-2])) if len(ema50_s) >= 2 else None
+
+    # ── SMA 50 — used for ATRx benchmark ─────────────────────────────────
+    sma50_val = None
+    sma50_prev = None
+    if len(close) >= 51:
+        sma50_s   = close.rolling(50).mean()
+        sma50_val  = float(sma50_s.iloc[-1])
+        sma50_prev = float(sma50_s.iloc[-2])
 
     sma150_st = None
     if len(close) >= 151:
@@ -331,8 +335,9 @@ def compute_row(ticker_def, hist, rs_scores):
         sma200_s  = close.rolling(200).mean()
         sma200_st = ma_status(price, float(sma200_s.iloc[-1]), float(sma200_s.iloc[-2]))
 
+    # ── ATRx SMA50: (Price - SMA50) / ATR14 ──────────────────────────────
     atr_mult = None
-    if ema50_val and len(close) >= 15:
+    if sma50_val is not None and len(close) >= 15:
         try:
             high = hist["High"].dropna()
             low_ = hist["Low"].dropna()
@@ -342,7 +347,7 @@ def compute_row(ticker_def, hist, rs_scores):
                 (low_ - close.shift(1)).abs()
             ], axis=1).max(axis=1)
             atr14    = float(tr.rolling(14).mean().iloc[-1])
-            atr_mult = round((price - ema50_val) / atr14, 4) if atr14 else None
+            atr_mult = round((price - sma50_val) / atr14, 4) if atr14 else None
         except Exception:
             atr_mult = None
 
