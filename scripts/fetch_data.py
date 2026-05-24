@@ -69,94 +69,108 @@ COMMODITIES = [
 ]
 
 THEMATIC = [
-    {"ticker": "SLV",   "name": "Silver ETF"},
-    {"ticker": "USO",   "name": "Oil ETF"},
-    {"ticker": "XOP",   "name": "Oil & Gas Exploration"},
-    {"ticker": "REMX",  "name": "Rare Earth Metals"},
-    {"ticker": "SILJ",  "name": "Silver Juniors"},
-    {"ticker": "GDXJ",  "name": "Gold Miners Junior"},
-    {"ticker": "DXYZ",  "name": "Destiny Tech100"},
-    {"ticker": "GDX",   "name": "Gold Miners"},
-    {"ticker": "COPX",  "name": "Copper Miners"},
-    {"ticker": "GLD",   "name": "Gold ETF"},
-    {"ticker": "UNG",   "name": "Natural Gas ETF"},
-    {"ticker": "SIL",   "name": "Silver Miners"},
-    {"ticker": "OIH",   "name": "Oil Services"},
-    {"ticker": "ITA",   "name": "Aerospace & Defense"},
-    {"ticker": "ITB",   "name": "Home Construction"},
-    {"ticker": "XBI",   "name": "Biotech (EW)"},
-    {"ticker": "LIT",   "name": "Lithium & Battery Tech"},
-    {"ticker": "AIQ",   "name": "AI & Big Data"},
-    {"ticker": "XME",   "name": "Metals & Mining"},
-    {"ticker": "XRT",   "name": "Retail"},
-    {"ticker": "XHE",   "name": "Health Care Equipment"},
-    {"ticker": "UFO",   "name": "Space"},
-    {"ticker": "IGV",   "name": "Software"},
     {"ticker": "KWEB",  "name": "China Internet"},
-    {"ticker": "SMH",   "name": "Semiconductors"},
-    {"ticker": "MAGS",  "name": "Magnificent 7"},
-    {"ticker": "ARKK",  "name": "ARK Innovation"},
-    {"ticker": "IBIT",  "name": "iShares Bitcoin Trust"},
-    {"ticker": "MSOS",  "name": "Cannabis"},
-    {"ticker": "JETS",  "name": "Airlines"},
-    {"ticker": "ETHA",  "name": "iShares Ethereum Trust"},
-    {"ticker": "KRE",   "name": "Regional Banks"},
-    {"ticker": "WGMI",  "name": "Bitcoin Miners"},
-    {"ticker": "IEZ",   "name": "Oil Equipment & Services"},
-    {"ticker": "TAN",   "name": "Solar Energy"},
-    {"ticker": "ICLN",  "name": "Clean Energy"},
-    {"ticker": "DRNZ",  "name": "Drone Technology"},
-    {"ticker": "ARKG",  "name": "ARK Genomic Revolution"},
     {"ticker": "CQQQ",  "name": "China Technology"},
-    {"ticker": "XAR",   "name": "Aerospace & Defense (EW)"},
-    {"ticker": "BOTZ",  "name": "Robotics & AI"},
-    {"ticker": "NUKZ",  "name": "Nuclear Energy"},
-    {"ticker": "ROBO",  "name": "Robotics Global"},
-    {"ticker": "NLR",   "name": "Nuclear & Uranium"},
-    {"ticker": "ARKQ",  "name": "ARK Autonomous Tech"},
-    {"ticker": "URA",   "name": "Uranium"},
-    {"ticker": "QTUM",  "name": "Quantum Computing"},
-    {"ticker": "XHB",   "name": "Homebuilders"},
-    {"ticker": "BLOK",  "name": "Blockchain"},
-    {"ticker": "CIBR",  "name": "Cybersecurity"},
-    {"ticker": "IAI",   "name": "Broker-Dealers"},
-    {"ticker": "ARKX",  "name": "ARK Space Exploration"},
-    {"ticker": "XSW",   "name": "Software & Services"},
-    {"ticker": "IHI",   "name": "Medical Devices"},
-    {"ticker": "IYT",   "name": "Transportation"},
-    {"ticker": "WCLD",  "name": "Cloud Computing"},
-    {"ticker": "ARKW",  "name": "ARK Next Generation Internet"},
-    {"ticker": "SOCL",  "name": "Social Media"},
+    {"ticker": "HYDR",  "name": "Hydrogen"},
     {"ticker": "BAI",   "name": "Big AI"},
-    {"ticker": "CLOU",  "name": "Cloud Computing (Global X)"},
-    {"ticker": "XTL",   "name": "Telecom"},
-    {"ticker": "SLX",   "name": "Steel"},
-    {"ticker": "HACK",  "name": "Cybersecurity (ETFMG)"},
+    {"ticker": "PSIL",  "name": "Psychedelics"},
+    {"ticker": "ICLN",  "name": "Clean Energy"},
     {"ticker": "PBW",   "name": "Clean Energy (Invesco)"},
+    {"ticker": "DRIV",  "name": "Electric & Autonomous Vehicles"},
+    {"ticker": "BOTZ",  "name": "Robotics & AI"},
+    {"ticker": "MAGS",  "name": "Magnificent 7"},
+    {"ticker": "SMH",   "name": "Semiconductors"},
+    {"ticker": "WGMI",  "name": "Bitcoin Miners"},
+    {"ticker": "SOCL",  "name": "Social Media"},
+    {"ticker": "QTUM",  "name": "Quantum Computing"},
+    {"ticker": "SLX",   "name": "Steel"},
+    {"ticker": "AIQ",   "name": "AI & Big Data"},
+    {"ticker": "ROBO",  "name": "Robotics Global"},
+    {"ticker": "UFO",   "name": "Space"},
+    {"ticker": "CIBR",  "name": "Cybersecurity"},
+    {"ticker": "DTCR",  "name": "Data Center REIT"},
+    {"ticker": "XTL",   "name": "Telecom"},
+    {"ticker": "COPX",  "name": "Copper Miners"},
+    {"ticker": "HACK",  "name": "Cybersecurity (ETFMG)"},
+    {"ticker": "SLV",   "name": "Silver ETF"},
+    {"ticker": "PPH",   "name": "Pharma"},
+    {"ticker": "ARKQ",  "name": "ARK Autonomous Tech"},
+    {"ticker": "SPPP",  "name": "Platinum & Palladium"},
+    {"ticker": "XBI",   "name": "Biotech (EW)"},
+    {"ticker": "UNG",   "name": "Natural Gas ETF"},
+    {"ticker": "XAR",   "name": "Aerospace & Defense (EW)"},
+    {"ticker": "ARKX",  "name": "ARK Space Exploration"},
+    {"ticker": "COPJ",  "name": "Copper Juniors"},
     {"ticker": "XHS",   "name": "Health Care Services"},
     {"ticker": "PBJ",   "name": "Food & Beverage"},
-    {"ticker": "DRIV",  "name": "Electric & Autonomous Vehicles"},
+    {"ticker": "BLOK",  "name": "Blockchain"},
+    {"ticker": "SILJ",  "name": "Silver Juniors"},
+    {"ticker": "IAI",   "name": "Broker-Dealers"},
+    {"ticker": "ITA",   "name": "Aerospace & Defense"},
+    {"ticker": "LIT",   "name": "Lithium & Battery Tech"},
+    {"ticker": "ARKW",  "name": "ARK Next Generation Internet"},
+    {"ticker": "OIH",   "name": "Oil Services"},
+    {"ticker": "SIL",   "name": "Silver Miners"},
     {"ticker": "PAVE",  "name": "US Infrastructure"},
-    {"ticker": "KBE",   "name": "Bank ETF"},
-    {"ticker": "IDGT",  "name": "Industrials & Infrastructure"},
-    {"ticker": "PPH",   "name": "Pharma"},
-    {"ticker": "DTCR",  "name": "Data Center REIT"},
+    {"ticker": "IEZ",   "name": "Oil Equipment & Services"},
     {"ticker": "IBUY",  "name": "E-Commerce"},
+    {"ticker": "ARKK",  "name": "ARK Innovation"},
+    {"ticker": "XME",   "name": "Metals & Mining"},
+    {"ticker": "IDGT",  "name": "Industrials & Infrastructure"},
+    {"ticker": "ARKG",  "name": "ARK Genomic Revolution"},
+    {"ticker": "IHI",   "name": "Medical Devices"},
+    {"ticker": "MSOS",  "name": "Cannabis"},
+    {"ticker": "JETS",  "name": "Airlines"},
+    {"ticker": "GLD",   "name": "Gold ETF"},
+    {"ticker": "CLOU",  "name": "Cloud Computing (Global X)"},
+    {"ticker": "IYT",   "name": "Transportation"},
+    {"ticker": "GDXJ",  "name": "Gold Miners Junior"},
+    {"ticker": "XOP",   "name": "Oil & Gas Exploration"},
+    {"ticker": "NUKZ",  "name": "Nuclear Energy"},
+    {"ticker": "IGV",   "name": "Software"},
+    {"ticker": "GDX",   "name": "Gold Miners"},
+    {"ticker": "XHE",   "name": "Health Care Equipment"},
+    {"ticker": "XHB",   "name": "Homebuilders"},
+    {"ticker": "XSW",   "name": "Software & Services"},
+    {"ticker": "XRT",   "name": "Retail"},
+    {"ticker": "ETHA",  "name": "iShares Ethereum Trust"},
     {"ticker": "KIE",   "name": "Insurance"},
-    {"ticker": "SPPP",  "name": "Platinum & Palladium"},
-    {"ticker": "COPJ",  "name": "Copper Juniors"},
+    {"ticker": "KBE",   "name": "Bank ETF"},
+    {"ticker": "IBIT",  "name": "iShares Bitcoin Trust"},
+    {"ticker": "ITB",   "name": "Home Construction"},
+    {"ticker": "USO",   "name": "Oil ETF"},
+    {"ticker": "KRE",   "name": "Regional Banks"},
+    {"ticker": "REMX",  "name": "Rare Earth Metals"},
+    {"ticker": "URA",   "name": "Uranium"},
+    {"ticker": "DXYZ",  "name": "Destiny Tech100"},
+    {"ticker": "NLR",   "name": "Nuclear & Uranium"},
+    {"ticker": "WCLD",  "name": "Cloud Computing"},
+    {"ticker": "DRNZ",  "name": "Drone Technology"},
     {"ticker": "SOLZ",  "name": "Solana Strategy"},
-    {"ticker": "HYDR",  "name": "Hydrogen"},
-    {"ticker": "PSIL",  "name": "Psychedelics"},
+    {"ticker": "TAN",   "name": "Solar Energy"},
+    {"ticker": "NASA",  "name": "US Aerospace & Defense"},
+    {"ticker": "IHF",   "name": "Health Care Providers"},
+    {"ticker": "DRAM",  "name": "Memory & Storage Tech"},
+    {"ticker": "FCG",   "name": "Natural Gas Producers"},
+    {"ticker": "SOXX",  "name": "Semiconductors (iShares)"},
+    {"ticker": "BUZZ",  "name": "Social Sentiment"},
+    {"ticker": "EWY",   "name": "South Korea"},
+    {"ticker": "IYZ",   "name": "Telecom (iShares)"},
+    {"ticker": "MEME",  "name": "Meme Stocks"},
+    {"ticker": "FDN",   "name": "Internet"},
+    {"ticker": "BOAT",  "name": "Recreational Boats"},
+    {"ticker": "ARGT",  "name": "Argentina"},
+    {"ticker": "GNR",   "name": "Global Natural Resources"},
+    {"ticker": "IPAY",  "name": "Digital Payments"},
+    {"ticker": "MOO",   "name": "Agribusiness"},
+    {"ticker": "IGF",   "name": "Global Infrastructure"},
+    {"ticker": "GRID",  "name": "Smart Grid"},
 ]
 
 
 # ── RS universe: Fred6724's live CSV ─────────────────────────────────────
 RS_CSV_URL = "https://raw.githubusercontent.com/Fred6724/rs-log/main/output/rs_stocks.csv"
 
-# Hardcoded fallback percentile curve derived from Fred6724's known distribution.
-# Maps raw RS score (no SPX division) → percentile rating (1-99).
-# Calibrated from observed stats: range [0-547], mean ~100, p50≈100, p90≈155.
 _FALLBACK_CURVE = [
     (0,   1), (30,  3), (40,  5), (50,  8),
     (60, 12), (70, 20), (80, 30), (90, 40),
@@ -166,7 +180,6 @@ _FALLBACK_CURVE = [
 ]
 
 def _curve_rating(score):
-    """Piecewise linear interpolation of raw RS score → rating (1-99)."""
     xs = [p[0] for p in _FALLBACK_CURVE]
     ys = [p[1] for p in _FALLBACK_CURVE]
     if score <= xs[0]:  return ys[0]
@@ -179,11 +192,6 @@ def _curve_rating(score):
 
 
 def fetch_rs_scores_array():
-    """
-    Download Fred6724's rs_stocks.csv (raw RS scores, no SPX division).
-    Retries 3x with timeout. Returns sorted numpy array, or None if
-    unavailable (score_to_rating will fall back to hardcoded curve).
-    """
     for attempt in range(3):
         try:
             resp = requests.get(RS_CSV_URL, timeout=12)
@@ -202,12 +210,6 @@ def fetch_rs_scores_array():
 # ── RS Score helpers ──────────────────────────────────────────────────────
 
 def compute_rs_score(close):
-    """
-    Raw RS performance score matching Fred6724's formula exactly:
-      (0.4×P63d + 0.2×P126d + 0.2×P189d + 0.2×P252d) × 100
-    No SPX division — comparable to Fred6724's universe CSV.
-    Requires >=253 bars. Returns float or None.
-    """
     if len(close) < 253:
         return None
     return float(
@@ -219,11 +221,6 @@ def compute_rs_score(close):
 
 
 def score_to_rating(score, scores_array):
-    """
-    Convert raw RS score to 1-99 rating.
-    Uses live CSV distribution when available, fallback curve otherwise.
-    Never returns None when score is valid.
-    """
     if score is None:
         return None
     if scores_array is not None:
@@ -234,10 +231,6 @@ def score_to_rating(score, scores_array):
 
 
 def compute_1m_rs_score(close, bars_back=0):
-    """
-    1-month raw RS score: 21-day price return × 100.
-    bars_back=0 = today, bars_back=N = N trading days ago.
-    """
     c = close.iloc[:-bars_back] if bars_back > 0 else close
     if len(c) < 22:
         return None
@@ -245,10 +238,6 @@ def compute_1m_rs_score(close, bars_back=0):
 
 
 def compute_1m_rs_new_high(close):
-    """
-    Returns True if today's 1M RS score is strictly higher than
-    all 21 prior trading days. Returns None if insufficient data.
-    """
     window = []
     for i in range(21, -1, -1):
         sc = compute_1m_rs_score(close, bars_back=i)
@@ -309,7 +298,6 @@ def compute_row(ticker_def, hist, rs_scores):
     intraday_chg = round((price / last_open - 1) * 100, 4) if last_open else None
     chg_5d       = round((price / float(close.iloc[-6]) - 1) * 100, 4) if len(close) >= 6 else None
 
-    # EMAs for MA status columns
     ema9_s   = ema(close, 9)
     ema9_st  = ma_status(price, float(ema9_s.iloc[-1]),  float(ema9_s.iloc[-2]))  if len(ema9_s)  >= 2 else None
     ema21_s  = ema(close, 21)
@@ -317,13 +305,10 @@ def compute_row(ticker_def, hist, rs_scores):
     ema50_s  = ema(close, 50)
     ema50_st = ma_status(price, float(ema50_s.iloc[-1]), float(ema50_s.iloc[-2])) if len(ema50_s) >= 2 else None
 
-    # ── SMA 50 — used for ATRx benchmark ─────────────────────────────────
     sma50_val = None
-    sma50_prev = None
     if len(close) >= 51:
         sma50_s   = close.rolling(50).mean()
-        sma50_val  = float(sma50_s.iloc[-1])
-        sma50_prev = float(sma50_s.iloc[-2])
+        sma50_val = float(sma50_s.iloc[-1])
 
     sma150_st = None
     if len(close) >= 151:
@@ -335,7 +320,6 @@ def compute_row(ticker_def, hist, rs_scores):
         sma200_s  = close.rolling(200).mean()
         sma200_st = ma_status(price, float(sma200_s.iloc[-1]), float(sma200_s.iloc[-2]))
 
-    # ── ATRx SMA50: (Price - SMA50) / ATR14 ──────────────────────────────
     atr_mult = None
     if sma50_val is not None and len(close) >= 15:
         try:
