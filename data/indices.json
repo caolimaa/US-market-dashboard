@@ -1,26 +1,22 @@
 {
-  "updated": "2026-05-24 23:57 UTC",
+  "updated": "2026-05-26 00:02 UTC",
   "indices": [
     {
       "ticker": "^VIX",
       "name": "CBOE Volatility Index",
-      "price": 16.7,
-      "daily_chg": -0.358,
-      "intraday_chg": -0.7724,
-      "chg_5d": -9.3869,
+      "price": 16.59,
+      "daily_chg": -0.6587,
+      "intraday_chg": -1.3087,
+      "chg_5d": -6.9024,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "below_down",
-      "sma200": "below_down",
-      "atr_multiple": -3.6803,
-      "rs_rating": 37,
+      "sma200": "below_up",
+      "atr_multiple": -3.7705,
+      "rs_rating": 38,
       "rs_1m_new_high": false,
       "vars_history": [
-        {
-          "v": -4.4292,
-          "m": -1.3373
-        },
         {
           "v": -4.5638,
           "m": -2.0249
@@ -96,6 +92,10 @@
         {
           "v": -4.0772,
           "m": -4.239
+        },
+        {
+          "v": -3.9752,
+          "m": -4.2163
         }
       ]
     },
@@ -262,7 +262,7 @@
           "m": 14.692
         },
         {
-          "v": 18.0551,
+          "v": 18.055,
           "m": 15.3039
         },
         {
@@ -788,17 +788,17 @@
     {
       "ticker": "DX-Y.NYB",
       "name": "US Dollar Index",
-      "price": 99.0,
-      "daily_chg": -0.3222,
-      "intraday_chg": -0.116,
-      "chg_5d": 0.0303,
+      "price": 99.239,
+      "daily_chg": -0.0816,
+      "intraday_chg": 0.2536,
+      "chg_5d": 0.2718,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 0.1324,
-      "rs_rating": 50,
+      "atr_multiple": 0.6543,
+      "rs_rating": 51,
       "rs_1m_new_high": false,
       "vars_history": [
         {
@@ -878,8 +878,8 @@
           "m": -0.3461
         },
         {
-          "v": 0.0598,
-          "m": -0.3248
+          "v": 0.294,
+          "m": -0.3131
         }
       ]
     },
@@ -3832,23 +3832,19 @@
     {
       "ticker": "SOL-USD",
       "name": "Solana",
-      "price": 85.24,
-      "daily_chg": -0.4886,
-      "intraday_chg": -0.4907,
-      "chg_5d": 1.2248,
+      "price": 84.88,
+      "daily_chg": -0.4337,
+      "intraday_chg": -0.426,
+      "chg_5d": -1.3504,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "below_down",
       "sma200": "below_down",
-      "atr_multiple": -0.3393,
+      "atr_multiple": -0.48,
       "rs_rating": 20,
       "rs_1m_new_high": false,
       "vars_history": [
-        {
-          "v": 1.1251,
-          "m": -0.3279
-        },
         {
           "v": 4.0622,
           "m": -0.2871
@@ -3922,31 +3918,31 @@
           "m": 3.2572
         },
         {
-          "v": -1.1919,
-          "m": 3.2627
+          "v": -1.1824,
+          "m": 3.2632
+        },
+        {
+          "v": -1.6127,
+          "m": 3.1263
         }
       ]
     },
     {
       "ticker": "BTC-USD",
       "name": "Bitcoin",
-      "price": 76974.9531,
-      "daily_chg": 0.3933,
-      "intraday_chg": 0.4154,
-      "chg_5d": 0.2919,
+      "price": 77207.9766,
+      "daily_chg": 0.2947,
+      "intraday_chg": 0.3104,
+      "chg_5d": -0.3225,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "above_up",
       "sma150": "above_down",
       "sma200": "below_down",
-      "atr_multiple": 0.1011,
-      "rs_rating": 40,
+      "atr_multiple": 0.1391,
+      "rs_rating": 41,
       "rs_1m_new_high": false,
       "vars_history": [
-        {
-          "v": 8015.7841,
-          "m": 5864.9739
-        },
         {
           "v": 8366.1595,
           "m": 6017.111
@@ -4020,31 +4016,31 @@
           "m": 4504.4656
         },
         {
-          "v": 203.5642,
-          "m": 4162.7461
+          "v": 209.6127,
+          "m": 4163.0485
+        },
+        {
+          "v": 271.9427,
+          "m": 3775.8564
         }
       ]
     },
     {
       "ticker": "ETH-USD",
       "name": "Ethereum",
-      "price": 2097.8201,
-      "daily_chg": -0.8569,
-      "intraday_chg": -0.8165,
-      "chg_5d": -0.5755,
+      "price": 2110.3201,
+      "daily_chg": 0.5875,
+      "intraday_chg": 0.6089,
+      "chg_5d": -0.7834,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "below_down",
       "sma200": "below_down",
-      "atr_multiple": -2.1507,
-      "rs_rating": 25,
+      "atr_multiple": -2.0245,
+      "rs_rating": 26,
       "rs_1m_new_high": false,
       "vars_history": [
-        {
-          "v": 141.6304,
-          "m": 149.7967
-        },
         {
           "v": 130.5948,
           "m": 144.5647
@@ -4118,8 +4114,12 @@
           "m": -8.3017
         },
         {
-          "v": -166.1975,
-          "m": -22.9639
+          "v": -166.0272,
+          "m": -22.9553
+        },
+        {
+          "v": -153.7275,
+          "m": -37.7232
         }
       ]
     }
