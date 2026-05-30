@@ -209,11 +209,6 @@ def fetch_rs_scores_array():
 # ── RS Score helpers ──────────────────────────────────────────────────────
 
 def compute_rs_score(close):
-    """
-    Raw RS performance score matching Fred6724 formula:
-      (0.4xP63d + 0.2xP126d + 0.2xP189d + 0.2xP252d) x 100
-    No SPX division. Requires >=253 bars.
-    """
     if len(close) < 253:
         return None
     return float(
@@ -235,39 +230,28 @@ def score_to_rating(score, scores_array):
 
 
 def compute_1m_rs_score(close, bars_back=0):
-    """
-    1-month raw RS score: 21-day price return x 100.
-    bars_back=0 = today, bars_back=N = N trading days ago.
-    """
     c = close.iloc[:-bars_back] if bars_back > 0 else close
     if len(c) < 22:
         return None
     return float((c.iloc[-1] / c.iloc[-22]) * 100)
 
 
-def compute_rs_sts_pct(close, lookback=63):
+def compute_rs_sts_pct(close, lookback=25):
     """
-    RS_STS% — introduced by Dr Yong Yang as a tweak to Jeff Sun's spreadsheet.
+    RS_STS% — Dr Yong Yang tweak to Jeff Sun's spreadsheet.
+    Lookback = 25 bars (Jeff Sun's setting).
 
-    Measures WHERE today's 1-month RS score sits within its own rolling
-    lookback window, expressed as a 0-100% percentile:
+    RS_STS% = (today's 1M RS - min of window) / (max of window - min of window) * 100
 
-        RS_STS% = (today - min_window) / (max_window - min_window) * 100
-
-    100% = today's 1M RS is at its HIGHEST point in the lookback window
-             (i.e. a fresh 1-month RS new high — the strongest reading)
-      0% = today's 1M RS is at its LOWEST point in the lookback window
-
-    Default lookback = 63 bars (approx 3 months of trading days), giving
-    a meaningful range for the percentile calculation.
-    Requires at least 22 + lookback bars of price history.
+    100% = today's 1M RS is the highest in the 25-day lookback window (strongest)
+      0% = today's 1M RS is the lowest in the 25-day lookback window
+    Requires at least 22 + 25 = 47 bars of price history.
     Returns an integer 0-100, or None if insufficient data.
     """
-    required = 22 + lookback
+    required = 22 + lookback  # 22 + 25 = 47 bars minimum
     if len(close) < required:
         return None
 
-    # Build a window of (lookback+1) 1M RS scores: today + past `lookback` days
     window_scores = []
     for i in range(lookback, -1, -1):
         sc = compute_1m_rs_score(close, bars_back=i)
@@ -282,7 +266,7 @@ def compute_rs_sts_pct(close, lookback=63):
     mx = max(window_scores)
 
     if mx == mn:
-        return 50  # flat window, return midpoint
+        return 50
 
     pct = (today_score - mn) / (mx - mn) * 100
     return max(0, min(100, round(pct)))
@@ -377,7 +361,7 @@ def compute_row(ticker_def, hist, rs_scores):
     vars_hist  = vars_histogram(close, window=20, lookback=50) if len(close) >= 70 else []
     rs_score   = compute_rs_score(close)
     rs_rating  = score_to_rating(rs_score, rs_scores)
-    rs_sts_pct = compute_rs_sts_pct(close, lookback=63)
+    rs_sts_pct = compute_rs_sts_pct(close, lookback=25)
 
     return {
         "ticker":       ticker,
