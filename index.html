@@ -54,8 +54,8 @@
     tbody tr { border-bottom: 1px solid #1c2128; transition: background .12s; }
     tbody tr:hover { background: #1c2128; }
     tbody tr:last-child { border-bottom: none; }
-    tbody tr.rs-nh-row { background: rgba(121,213,242,.05); }
-    tbody tr.rs-nh-row:hover { background: rgba(121,213,242,.10); }
+    tbody tr.sts-100-row { background: rgba(121,213,242,.06); }
+    tbody tr.sts-100-row:hover { background: rgba(121,213,242,.12); }
 
     td { padding: 10px 14px; white-space: nowrap; }
     td:not(:first-child) { text-align: center; }
@@ -94,26 +94,49 @@
     .rs-30  { background: rgba(219,109,40,.22); color: #db6d28; border: 1px solid rgba(219,109,40,.30); }
     .rs-low { background: rgba(248,81,73,.20);  color: #f85149; border: 1px solid rgba(248,81,73,.28); }
 
-    .rs-nh-yes {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 4px 12px; border-radius: 20px; font-size: .78rem; font-weight: 700;
-      background: rgba(121,213,242,.18); color: #79d5f2;
+    .sts-badge {
+      display: inline-block; min-width: 52px; padding: 3px 10px;
+      border-radius: 20px; font-size: .80rem; font-weight: 700;
+      font-family: 'Courier New', monospace; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .sts-100 {
+      background: rgba(121,213,242,.22); color: #79d5f2;
+      border: 1px solid rgba(121,213,242,.55);
+      animation: sts-pulse 2.4s ease-in-out infinite;
+    }
+    .sts-90 {
+      background: rgba(121,213,242,.16); color: #79d5f2;
       border: 1px solid rgba(121,213,242,.40);
-      animation: nh-pulse 2.4s ease-in-out infinite;
     }
-    .rs-nh-no {
-      display: inline-block; padding: 4px 12px; border-radius: 20px;
-      font-size: .76rem; color: #484f58;
-      background: rgba(110,118,129,.08); border: 1px solid rgba(110,118,129,.14);
+    .sts-70 {
+      background: rgba(35,134,54,.28); color: #3fb950;
+      border: 1px solid rgba(63,185,80,.35);
     }
-    .rs-nh-na {
-      display: inline-block; padding: 4px 12px; border-radius: 20px;
-      font-size: .76rem; color: #484f58;
-      background: rgba(110,118,129,.08); border: 1px solid rgba(110,118,129,.14);
+    .sts-50 {
+      background: rgba(70,180,70,.18); color: #7ee787;
+      border: 1px solid rgba(70,180,70,.28);
     }
-    @keyframes nh-pulse {
+    .sts-30 {
+      background: rgba(187,162,0,.20); color: #e3b341;
+      border: 1px solid rgba(187,162,0,.28);
+    }
+    .sts-10 {
+      background: rgba(219,109,40,.20); color: #db6d28;
+      border: 1px solid rgba(219,109,40,.28);
+    }
+    .sts-0 {
+      background: rgba(248,81,73,.18); color: #f85149;
+      border: 1px solid rgba(248,81,73,.28);
+    }
+    .sts-na {
+      background: rgba(110,118,129,.10); color: #6e7681;
+      border: 1px solid rgba(110,118,129,.18); font-size: .72rem;
+    }
+
+    @keyframes sts-pulse {
       0%, 100% { box-shadow: 0 0 0 0 rgba(121,213,242,.0); }
-      50%       { box-shadow: 0 0 8px 2px rgba(121,213,242,.30); }
+      50%       { box-shadow: 0 0 10px 3px rgba(121,213,242,.35); }
     }
 
     .atr-badge {
@@ -152,7 +175,6 @@
   <span id="updated-time">Loading…</span>
 </header>
 
-<!-- ══════════════════════ ECONOMIC CALENDAR ═════════════════════ -->
 <div class="section-card">
   <div class="section-title">🗓️ Economic Calendar — United States</div>
   <div class="tradingview-widget-container" style="padding:0">
@@ -172,125 +194,120 @@
   </div>
 </div>
 
-<!-- ══════════════════════════ INDICES ════════════════════════════ -->
 <div class="section-card">
   <div class="section-title">📈 Indices — EOD Snapshot · Prev Close</div>
   <div class="table-wrap"><table id="indices-table">
     <thead><tr>
-      <th data-col="ticker"         data-type="string">Ticker</th>
-      <th data-col="price"          data-type="number">Price</th>
-      <th data-col="daily_chg"      data-type="number">Daily Chg</th>
-      <th data-col="intraday_chg"   data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open→Close)</small></th>
-      <th data-col="chg_5d"         data-type="number">5D Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(5 Trading Days)</small></th>
-      <th data-col="ema9"           data-type="ma">EMA 9</th>
-      <th data-col="ema21"          data-type="ma">EMA 21</th>
-      <th data-col="ema50"          data-type="ma">EMA 50</th>
-      <th data-col="sma150"         data-type="ma">SMA 150</th>
-      <th data-col="sma200"         data-type="ma">SMA 200</th>
-      <th data-col="atr_multiple"   data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
-      <th data-col="rs_rating"      data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
-      <th data-col="rs_1m_new_high" data-type="bool">1M RS New High<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(21-day RS peak)</small></th>
-      <th data-col="vars_latest"    data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
+      <th data-col="ticker"       data-type="string">Ticker</th>
+      <th data-col="price"        data-type="number">Price</th>
+      <th data-col="daily_chg"    data-type="number">Daily Chg</th>
+      <th data-col="intraday_chg" data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open→Close)</small></th>
+      <th data-col="chg_5d"       data-type="number">5D Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(5 Trading Days)</small></th>
+      <th data-col="ema9"         data-type="ma">EMA 9</th>
+      <th data-col="ema21"        data-type="ma">EMA 21</th>
+      <th data-col="ema50"        data-type="ma">EMA 50</th>
+      <th data-col="sma150"       data-type="ma">SMA 150</th>
+      <th data-col="sma200"       data-type="ma">SMA 200</th>
+      <th data-col="atr_multiple" data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
+      <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
+      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 63d window)</small></th>
+      <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
     </tr></thead>
     <tbody id="indices-body"><tr><td colspan="14" class="loading-msg">⏳ Loading…</td></tr></tbody>
   </table></div>
   <div class="legend" id="indices-legend"></div>
 </div>
 
-<!-- ══════════════════════════ SECTORS ═══════════════════════════ -->
 <div class="section-card">
   <div class="section-title">🏭 Sectors — EOD Snapshot · Prev Close</div>
   <div class="table-wrap"><table id="sectors-table">
     <thead><tr>
-      <th data-col="ticker"         data-type="string">Ticker</th>
-      <th data-col="price"          data-type="number">Price</th>
-      <th data-col="daily_chg"      data-type="number">Daily Chg</th>
-      <th data-col="intraday_chg"   data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open→Close)</small></th>
-      <th data-col="chg_5d"         data-type="number">5D Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(5 Trading Days)</small></th>
-      <th data-col="ema9"           data-type="ma">EMA 9</th>
-      <th data-col="ema21"          data-type="ma">EMA 21</th>
-      <th data-col="ema50"          data-type="ma">EMA 50</th>
-      <th data-col="sma150"         data-type="ma">SMA 150</th>
-      <th data-col="sma200"         data-type="ma">SMA 200</th>
-      <th data-col="atr_multiple"   data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
-      <th data-col="rs_rating"      data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
-      <th data-col="rs_1m_new_high" data-type="bool">1M RS New High<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(21-day RS peak)</small></th>
-      <th data-col="vars_latest"    data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
+      <th data-col="ticker"       data-type="string">Ticker</th>
+      <th data-col="price"        data-type="number">Price</th>
+      <th data-col="daily_chg"    data-type="number">Daily Chg</th>
+      <th data-col="intraday_chg" data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open→Close)</small></th>
+      <th data-col="chg_5d"       data-type="number">5D Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(5 Trading Days)</small></th>
+      <th data-col="ema9"         data-type="ma">EMA 9</th>
+      <th data-col="ema21"        data-type="ma">EMA 21</th>
+      <th data-col="ema50"        data-type="ma">EMA 50</th>
+      <th data-col="sma150"       data-type="ma">SMA 150</th>
+      <th data-col="sma200"       data-type="ma">SMA 200</th>
+      <th data-col="atr_multiple" data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
+      <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
+      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 63d window)</small></th>
+      <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
     </tr></thead>
     <tbody id="sectors-body"><tr><td colspan="14" class="loading-msg">⏳ Loading…</td></tr></tbody>
   </table></div>
   <div class="legend" id="sectors-legend"></div>
 </div>
 
-<!-- ══════════════════════════ EW SECTORS ════════════════════════ -->
 <div class="section-card">
   <div class="section-title">⚖️ EW Sectors — EOD Snapshot · Prev Close</div>
   <div class="table-wrap"><table id="sectors-ew-table">
     <thead><tr>
-      <th data-col="ticker"         data-type="string">Ticker</th>
-      <th data-col="price"          data-type="number">Price</th>
-      <th data-col="daily_chg"      data-type="number">Daily Chg</th>
-      <th data-col="intraday_chg"   data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open→Close)</small></th>
-      <th data-col="chg_5d"         data-type="number">5D Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(5 Trading Days)</small></th>
-      <th data-col="ema9"           data-type="ma">EMA 9</th>
-      <th data-col="ema21"          data-type="ma">EMA 21</th>
-      <th data-col="ema50"          data-type="ma">EMA 50</th>
-      <th data-col="sma150"         data-type="ma">SMA 150</th>
-      <th data-col="sma200"         data-type="ma">SMA 200</th>
-      <th data-col="atr_multiple"   data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
-      <th data-col="rs_rating"      data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
-      <th data-col="rs_1m_new_high" data-type="bool">1M RS New High<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(21-day RS peak)</small></th>
-      <th data-col="vars_latest"    data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
+      <th data-col="ticker"       data-type="string">Ticker</th>
+      <th data-col="price"        data-type="number">Price</th>
+      <th data-col="daily_chg"    data-type="number">Daily Chg</th>
+      <th data-col="intraday_chg" data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open→Close)</small></th>
+      <th data-col="chg_5d"       data-type="number">5D Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(5 Trading Days)</small></th>
+      <th data-col="ema9"         data-type="ma">EMA 9</th>
+      <th data-col="ema21"        data-type="ma">EMA 21</th>
+      <th data-col="ema50"        data-type="ma">EMA 50</th>
+      <th data-col="sma150"       data-type="ma">SMA 150</th>
+      <th data-col="sma200"       data-type="ma">SMA 200</th>
+      <th data-col="atr_multiple" data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
+      <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
+      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 63d window)</small></th>
+      <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
     </tr></thead>
     <tbody id="sectors-ew-body"><tr><td colspan="14" class="loading-msg">⏳ Loading…</td></tr></tbody>
   </table></div>
   <div class="legend" id="sectors-ew-legend"></div>
 </div>
 
-<!-- ══════════════════════ COMMODITIES & CRYPTO ══════════════════ -->
 <div class="section-card">
   <div class="section-title">🪙 Commodities &amp; Crypto — EOD Snapshot · Prev Close</div>
   <div class="table-wrap"><table id="commodities-table">
     <thead><tr>
-      <th data-col="ticker"         data-type="string">Ticker</th>
-      <th data-col="price"          data-type="number">Price</th>
-      <th data-col="daily_chg"      data-type="number">Daily Chg</th>
-      <th data-col="intraday_chg"   data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open→Close)</small></th>
-      <th data-col="chg_5d"         data-type="number">5D Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(5 Trading Days)</small></th>
-      <th data-col="ema9"           data-type="ma">EMA 9</th>
-      <th data-col="ema21"          data-type="ma">EMA 21</th>
-      <th data-col="ema50"          data-type="ma">EMA 50</th>
-      <th data-col="sma150"         data-type="ma">SMA 150</th>
-      <th data-col="sma200"         data-type="ma">SMA 200</th>
-      <th data-col="atr_multiple"   data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
-      <th data-col="rs_rating"      data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
-      <th data-col="rs_1m_new_high" data-type="bool">1M RS New High<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(21-day RS peak)</small></th>
-      <th data-col="vars_latest"    data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
+      <th data-col="ticker"       data-type="string">Ticker</th>
+      <th data-col="price"        data-type="number">Price</th>
+      <th data-col="daily_chg"    data-type="number">Daily Chg</th>
+      <th data-col="intraday_chg" data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open→Close)</small></th>
+      <th data-col="chg_5d"       data-type="number">5D Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(5 Trading Days)</small></th>
+      <th data-col="ema9"         data-type="ma">EMA 9</th>
+      <th data-col="ema21"        data-type="ma">EMA 21</th>
+      <th data-col="ema50"        data-type="ma">EMA 50</th>
+      <th data-col="sma150"       data-type="ma">SMA 150</th>
+      <th data-col="sma200"       data-type="ma">SMA 200</th>
+      <th data-col="atr_multiple" data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
+      <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
+      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 63d window)</small></th>
+      <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
     </tr></thead>
     <tbody id="commodities-body"><tr><td colspan="14" class="loading-msg">⏳ Loading…</td></tr></tbody>
   </table></div>
   <div class="legend" id="commodities-legend"></div>
 </div>
 
-<!-- ══════════════════════════ THEMATIC ══════════════════════════ -->
 <div class="section-card">
   <div class="section-title">🎯 Thematic — EOD Snapshot · Prev Close</div>
   <div class="table-wrap"><table id="thematic-table">
     <thead><tr>
-      <th data-col="ticker"         data-type="string">Ticker</th>
-      <th data-col="price"          data-type="number">Price</th>
-      <th data-col="daily_chg"      data-type="number">Daily Chg</th>
-      <th data-col="intraday_chg"   data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open→Close)</small></th>
-      <th data-col="chg_5d"         data-type="number">5D Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(5 Trading Days)</small></th>
-      <th data-col="ema9"           data-type="ma">EMA 9</th>
-      <th data-col="ema21"          data-type="ma">EMA 21</th>
-      <th data-col="ema50"          data-type="ma">EMA 50</th>
-      <th data-col="sma150"         data-type="ma">SMA 150</th>
-      <th data-col="sma200"         data-type="ma">SMA 200</th>
-      <th data-col="atr_multiple"   data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
-      <th data-col="rs_rating"      data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
-      <th data-col="rs_1m_new_high" data-type="bool">1M RS New High<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(21-day RS peak)</small></th>
-      <th data-col="vars_latest"    data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
+      <th data-col="ticker"       data-type="string">Ticker</th>
+      <th data-col="price"        data-type="number">Price</th>
+      <th data-col="daily_chg"    data-type="number">Daily Chg</th>
+      <th data-col="intraday_chg" data-type="number">Intraday Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Open→Close)</small></th>
+      <th data-col="chg_5d"       data-type="number">5D Chg<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(5 Trading Days)</small></th>
+      <th data-col="ema9"         data-type="ma">EMA 9</th>
+      <th data-col="ema21"        data-type="ma">EMA 21</th>
+      <th data-col="ema50"        data-type="ma">EMA 50</th>
+      <th data-col="sma150"       data-type="ma">SMA 150</th>
+      <th data-col="sma200"       data-type="ma">SMA 200</th>
+      <th data-col="atr_multiple" data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
+      <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
+      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 63d window)</small></th>
+      <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
     </tr></thead>
     <tbody id="thematic-body"><tr><td colspan="14" class="loading-msg">⏳ Loading…</td></tr></tbody>
   </table></div>
@@ -298,8 +315,7 @@
 </div>
 
 <script>
-  const MA_RANK   = { above_up: 4, above_down: 3, below_up: 2, below_down: 1 };
-  const BOOL_RANK = { 'true': 2, 'false': 1, 'null': 0 };
+  const MA_RANK = { above_up: 4, above_down: 3, below_up: 2, below_down: 1 };
 
   const state = {
     indices:     { data: [], sortCol: null, sortDir: 'asc' },
@@ -350,10 +366,17 @@
     return `<span class="rs-badge ${cls}">${v}</span>`;
   }
 
-  function rsNewHighBadge(v) {
-    if (v === true)  return '<span class="rs-nh-yes">✦ New High</span>';
-    if (v === false) return '<span class="rs-nh-no">—</span>';
-    return '<span class="rs-nh-na">N/A</span>';
+  function stsBadge(v) {
+    if (v == null) return '<span class="sts-badge sts-na">N/A</span>';
+    let cls;
+    if      (v === 100) cls = 'sts-100';
+    else if (v >= 90)   cls = 'sts-90';
+    else if (v >= 70)   cls = 'sts-70';
+    else if (v >= 50)   cls = 'sts-50';
+    else if (v >= 30)   cls = 'sts-30';
+    else if (v >= 10)   cls = 'sts-10';
+    else                cls = 'sts-0';
+    return `<span class="sts-badge ${cls}">${v}%</span>`;
   }
 
   function varsSvg(data) {
@@ -391,7 +414,7 @@
     const fmt = n => n.toLocaleString(undefined,
       { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const tr = document.createElement('tr');
-    if (row.rs_1m_new_high === true) tr.classList.add('rs-nh-row');
+    if (row.rs_sts_pct === 100) tr.classList.add('sts-100-row');
     tr.innerHTML = `
       <td><div class="ticker-sym">${row.ticker}</div><div class="ticker-full">${row.name}</div></td>
       <td><span class="price-val">${fmt(row.price)}</span></td>
@@ -405,7 +428,7 @@
       <td>${maPill(row.sma200)}</td>
       <td>${atrBadge(row.atr_multiple)}</td>
       <td>${rsBadge(row.rs_rating)}</td>
-      <td>${rsNewHighBadge(row.rs_1m_new_high)}</td>
+      <td>${stsBadge(row.rs_sts_pct)}</td>
       <td class="vars-cell">${varsSvg(row.vars_history)}</td>
     `;
     return tr;
@@ -423,9 +446,6 @@
       if (type === 'ma') {
         va = MA_RANK[a[sortCol]] ?? 0;
         vb = MA_RANK[b[sortCol]] ?? 0;
-      } else if (type === 'bool') {
-        va = BOOL_RANK[String(a[sortCol])] ?? 0;
-        vb = BOOL_RANK[String(b[sortCol])] ?? 0;
       } else if (type === 'number') {
         va = a[sortCol] ?? -Infinity;
         vb = b[sortCol] ?? -Infinity;
@@ -476,8 +496,14 @@
       <div class="legend-item"><span class="rs-badge rs-50">50–69</span> RS Average</div>
       <div class="legend-item"><span class="rs-badge rs-30">30–49</span> RS Weak</div>
       <div class="legend-item"><span class="rs-badge rs-low">&lt;30</span> RS Laggard</div>
-      <div class="legend-item" style="margin-left:8px"><span class="rs-nh-yes">✦ New High</span> 1-month RS new high today</div>
-      <div class="legend-item"><span class="rs-nh-no">—</span> No new high</div>
+      <div class="legend-item" style="margin-left:8px"><span class="sts-badge sts-100">100%</span> 1M RS at 3-month high (new high)</div>
+      <div class="legend-item"><span class="sts-badge sts-90">90–99%</span> Near 3-month high</div>
+      <div class="legend-item"><span class="sts-badge sts-70">70–89%</span> Strong momentum</div>
+      <div class="legend-item"><span class="sts-badge sts-50">50–69%</span> Above midpoint</div>
+      <div class="legend-item"><span class="sts-badge sts-30">30–49%</span> Neutral / fading</div>
+      <div class="legend-item"><span class="sts-badge sts-10">10–29%</span> Weak momentum</div>
+      <div class="legend-item"><span class="sts-badge sts-0">0–9%</span> Near 3-month RS low</div>
+      <div class="legend-item" style="margin-left:8px; color:#8b949e">RS_STS% = (today’s 1M RS − 3m min) / (3m max − 3m min) × 100</div>
       <div class="legend-item" style="margin-left:8px"><span class="legend-swatch" style="background:#58a6ff"></span> VARS bars</div>
       <div class="legend-item"><span class="legend-swatch" style="background:#e3b341;border-radius:0;height:2px;width:14px"></span> SMA20 line</div>
       <div class="legend-item" style="color:#8b949e">↕ Click any header to sort</div>
