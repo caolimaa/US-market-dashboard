@@ -198,18 +198,22 @@ def fetch_rs_scores_array():
             if resp.status_code == 200:
                 df = pd.read_csv(StringIO(resp.text))
                 scores = np.sort(df["Relative Strength"].dropna().values)
-                print(f"  RS CSV loaded: {len(scores)} stocks  "
-                      f"[{scores[0]:.1f} – {scores[-1]:.1f}]")
+                print(f"  RS CSV loaded: {len(scores)} stocks  [{scores[0]:.1f} - {scores[-1]:.1f}]")
                 return scores
         except Exception:
             pass
-    print("  RS CSV unavailable — using fallback percentile curve.")
+    print("  RS CSV unavailable - using fallback percentile curve.")
     return None
 
 
 # ── RS Score helpers ──────────────────────────────────────────────────────
 
 def compute_rs_score(close):
+    """
+    Raw RS performance score matching Fred6724 formula:
+      (0.4xP63d + 0.2xP126d + 0.2xP189d + 0.2xP252d) x 100
+    No SPX division. Requires >=253 bars.
+    """
     if len(close) < 253:
         return None
     return float(
@@ -231,22 +235,57 @@ def score_to_rating(score, scores_array):
 
 
 def compute_1m_rs_score(close, bars_back=0):
+    """
+    1-month raw RS score: 21-day price return x 100.
+    bars_back=0 = today, bars_back=N = N trading days ago.
+    """
     c = close.iloc[:-bars_back] if bars_back > 0 else close
     if len(c) < 22:
         return None
     return float((c.iloc[-1] / c.iloc[-22]) * 100)
 
 
-def compute_1m_rs_new_high(close):
-    window = []
-    for i in range(21, -1, -1):
-        sc = compute_1m_rs_score(close, bars_back=i)
-        window.append(sc)
-    today = window[-1]
-    past  = [r for r in window[:-1] if r is not None]
-    if today is None or not past:
+def compute_rs_sts_pct(close, lookback=63):
+    """
+    RS_STS% — introduced by Dr Yong Yang as a tweak to Jeff Sun's spreadsheet.
+
+    Measures WHERE today's 1-month RS score sits within its own rolling
+    lookback window, expressed as a 0-100% percentile:
+
+        RS_STS% = (today - min_window) / (max_window - min_window) * 100
+
+    100% = today's 1M RS is at its HIGHEST point in the lookback window
+             (i.e. a fresh 1-month RS new high — the strongest reading)
+      0% = today's 1M RS is at its LOWEST point in the lookback window
+
+    Default lookback = 63 bars (approx 3 months of trading days), giving
+    a meaningful range for the percentile calculation.
+    Requires at least 22 + lookback bars of price history.
+    Returns an integer 0-100, or None if insufficient data.
+    """
+    required = 22 + lookback
+    if len(close) < required:
         return None
-    return bool(today > max(past))
+
+    # Build a window of (lookback+1) 1M RS scores: today + past `lookback` days
+    window_scores = []
+    for i in range(lookback, -1, -1):
+        sc = compute_1m_rs_score(close, bars_back=i)
+        if sc is not None:
+            window_scores.append(sc)
+
+    if len(window_scores) < 2:
+        return None
+
+    today_score = window_scores[-1]
+    mn = min(window_scores)
+    mx = max(window_scores)
+
+    if mx == mn:
+        return 50  # flat window, return midpoint
+
+    pct = (today_score - mn) / (mx - mn) * 100
+    return max(0, min(100, round(pct)))
 
 
 # ── MA / ATR helpers ──────────────────────────────────────────────────────
@@ -335,28 +374,27 @@ def compute_row(ticker_def, hist, rs_scores):
         except Exception:
             atr_mult = None
 
-    vars_hist = vars_histogram(close, window=20, lookback=50) if len(close) >= 70 else []
-
-    rs_score       = compute_rs_score(close)
-    rs_rating      = score_to_rating(rs_score, rs_scores)
-    rs_1m_new_high = compute_1m_rs_new_high(close)
+    vars_hist  = vars_histogram(close, window=20, lookback=50) if len(close) >= 70 else []
+    rs_score   = compute_rs_score(close)
+    rs_rating  = score_to_rating(rs_score, rs_scores)
+    rs_sts_pct = compute_rs_sts_pct(close, lookback=63)
 
     return {
-        "ticker":          ticker,
-        "name":            name,
-        "price":           price,
-        "daily_chg":       daily_chg,
-        "intraday_chg":    intraday_chg,
-        "chg_5d":          chg_5d,
-        "ema9":            ema9_st,
-        "ema21":           ema21_st,
-        "ema50":           ema50_st,
-        "sma150":          sma150_st,
-        "sma200":          sma200_st,
-        "atr_multiple":    atr_mult,
-        "rs_rating":       rs_rating,
-        "rs_1m_new_high":  rs_1m_new_high,
-        "vars_history":    vars_hist,
+        "ticker":       ticker,
+        "name":         name,
+        "price":        price,
+        "daily_chg":    daily_chg,
+        "intraday_chg": intraday_chg,
+        "chg_5d":       chg_5d,
+        "ema9":         ema9_st,
+        "ema21":        ema21_st,
+        "ema50":        ema50_st,
+        "sma150":       sma150_st,
+        "sma200":       sma200_st,
+        "atr_multiple": atr_mult,
+        "rs_rating":    rs_rating,
+        "rs_sts_pct":   rs_sts_pct,
+        "vars_history": vars_hist,
     }
 
 
@@ -377,9 +415,9 @@ def process_section(ticker_defs, rs_scores):
             row = compute_row(td, hist, rs_scores)
             if row:
                 rows.append(row)
-                rs_str = str(row["rs_rating"]) if row["rs_rating"] is not None else "N/A"
-                nh_str = "NEW HIGH" if row["rs_1m_new_high"] else ("—" if row["rs_1m_new_high"] is False else "N/A")
-                print(f"  {sym}  RS:{rs_str}  1M:{nh_str}")
+                rs_str  = str(row["rs_rating"])  if row["rs_rating"]  is not None else "N/A"
+                sts_str = str(row["rs_sts_pct"]) + "%" if row["rs_sts_pct"] is not None else "N/A"
+                print(f"  {sym}  RS:{rs_str}  STS:{sts_str}")
         except Exception as e:
             print(f"  {sym}: {e}")
     return rows
@@ -389,11 +427,11 @@ def process_section(ticker_defs, rs_scores):
 
 def main():
     print("=" * 55)
-    print("  Market Dashboard — fetch_data.py")
+    print("  Market Dashboard - fetch_data.py")
     print(f"  Run: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}")
     print("=" * 55)
 
-    print("\n── RS universe (Fred6724) ──")
+    print("\n-- RS universe (Fred6724) --")
     rs_scores = fetch_rs_scores_array()
 
     sections = {
@@ -407,7 +445,7 @@ def main():
     output = {"updated": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")}
 
     for section_name, ticker_defs in sections.items():
-        print(f"\n── {section_name.upper()} ({len(ticker_defs)} tickers) ──")
+        print(f"\n-- {section_name.upper()} ({len(ticker_defs)} tickers) --")
         output[section_name] = process_section(ticker_defs, rs_scores)
         print(f"   {len(output[section_name])} rows written")
 
