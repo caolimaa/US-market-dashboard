@@ -98,7 +98,6 @@
       display: inline-block; min-width: 52px; padding: 3px 10px;
       border-radius: 20px; font-size: .80rem; font-weight: 700;
       font-family: 'Courier New', monospace; text-align: center;
-      position: relative; overflow: hidden;
     }
     .sts-100 {
       background: rgba(121,213,242,.22); color: #79d5f2;
@@ -175,6 +174,7 @@
   <span id="updated-time">Loading…</span>
 </header>
 
+<!-- ══════════════════════ ECONOMIC CALENDAR ═════════════════════ -->
 <div class="section-card">
   <div class="section-title">🗓️ Economic Calendar — United States</div>
   <div class="tradingview-widget-container" style="padding:0">
@@ -194,6 +194,7 @@
   </div>
 </div>
 
+<!-- ══════════════════════════ INDICES ════════════════════════════ -->
 <div class="section-card">
   <div class="section-title">📈 Indices — EOD Snapshot · Prev Close</div>
   <div class="table-wrap"><table id="indices-table">
@@ -210,7 +211,7 @@
       <th data-col="sma200"       data-type="ma">SMA 200</th>
       <th data-col="atr_multiple" data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
       <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
-      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 63d window)</small></th>
+      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 25d window)</small></th>
       <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
     </tr></thead>
     <tbody id="indices-body"><tr><td colspan="14" class="loading-msg">⏳ Loading…</td></tr></tbody>
@@ -218,6 +219,7 @@
   <div class="legend" id="indices-legend"></div>
 </div>
 
+<!-- ══════════════════════════ SECTORS ═══════════════════════════ -->
 <div class="section-card">
   <div class="section-title">🏭 Sectors — EOD Snapshot · Prev Close</div>
   <div class="table-wrap"><table id="sectors-table">
@@ -234,7 +236,7 @@
       <th data-col="sma200"       data-type="ma">SMA 200</th>
       <th data-col="atr_multiple" data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
       <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
-      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 63d window)</small></th>
+      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 25d window)</small></th>
       <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
     </tr></thead>
     <tbody id="sectors-body"><tr><td colspan="14" class="loading-msg">⏳ Loading…</td></tr></tbody>
@@ -242,6 +244,7 @@
   <div class="legend" id="sectors-legend"></div>
 </div>
 
+<!-- ══════════════════════════ EW SECTORS ════════════════════════ -->
 <div class="section-card">
   <div class="section-title">⚖️ EW Sectors — EOD Snapshot · Prev Close</div>
   <div class="table-wrap"><table id="sectors-ew-table">
@@ -258,7 +261,7 @@
       <th data-col="sma200"       data-type="ma">SMA 200</th>
       <th data-col="atr_multiple" data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
       <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
-      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 63d window)</small></th>
+      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 25d window)</small></th>
       <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
     </tr></thead>
     <tbody id="sectors-ew-body"><tr><td colspan="14" class="loading-msg">⏳ Loading…</td></tr></tbody>
@@ -266,6 +269,7 @@
   <div class="legend" id="sectors-ew-legend"></div>
 </div>
 
+<!-- ══════════════════════ COMMODITIES & CRYPTO ══════════════════ -->
 <div class="section-card">
   <div class="section-title">🪙 Commodities &amp; Crypto — EOD Snapshot · Prev Close</div>
   <div class="table-wrap"><table id="commodities-table">
@@ -282,7 +286,7 @@
       <th data-col="sma200"       data-type="ma">SMA 200</th>
       <th data-col="atr_multiple" data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
       <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
-      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 63d window)</small></th>
+      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 25d window)</small></th>
       <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
     </tr></thead>
     <tbody id="commodities-body"><tr><td colspan="14" class="loading-msg">⏳ Loading…</td></tr></tbody>
@@ -290,6 +294,7 @@
   <div class="legend" id="commodities-legend"></div>
 </div>
 
+<!-- ══════════════════════════ THEMATIC ══════════════════════════ -->
 <div class="section-card">
   <div class="section-title">🎯 Thematic — EOD Snapshot · Prev Close</div>
   <div class="table-wrap"><table id="thematic-table">
@@ -306,7 +311,7 @@
       <th data-col="sma200"       data-type="ma">SMA 200</th>
       <th data-col="atr_multiple" data-type="number">ATRx SMA50<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(Price − SMA50) / ATR14</small></th>
       <th data-col="rs_rating"    data-type="number">RS Rating<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(vs S&amp;P 500)</small></th>
-      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 63d window)</small></th>
+      <th data-col="rs_sts_pct"   data-type="number">RS_STS %<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(1M RS · 25d window)</small></th>
       <th data-col="vars_latest"  data-type="number">VARS Histogram<br><small style="font-weight:400;text-transform:none;letter-spacing:0">(20d · LB50 · SMA20)</small></th>
     </tr></thead>
     <tbody id="thematic-body"><tr><td colspan="14" class="loading-msg">⏳ Loading…</td></tr></tbody>
@@ -496,14 +501,14 @@
       <div class="legend-item"><span class="rs-badge rs-50">50–69</span> RS Average</div>
       <div class="legend-item"><span class="rs-badge rs-30">30–49</span> RS Weak</div>
       <div class="legend-item"><span class="rs-badge rs-low">&lt;30</span> RS Laggard</div>
-      <div class="legend-item" style="margin-left:8px"><span class="sts-badge sts-100">100%</span> 1M RS at 3-month high (new high)</div>
-      <div class="legend-item"><span class="sts-badge sts-90">90–99%</span> Near 3-month high</div>
+      <div class="legend-item" style="margin-left:8px"><span class="sts-badge sts-100">100%</span> 1M RS at 25d high (new high)</div>
+      <div class="legend-item"><span class="sts-badge sts-90">90–99%</span> Near 25d high</div>
       <div class="legend-item"><span class="sts-badge sts-70">70–89%</span> Strong momentum</div>
       <div class="legend-item"><span class="sts-badge sts-50">50–69%</span> Above midpoint</div>
       <div class="legend-item"><span class="sts-badge sts-30">30–49%</span> Neutral / fading</div>
       <div class="legend-item"><span class="sts-badge sts-10">10–29%</span> Weak momentum</div>
-      <div class="legend-item"><span class="sts-badge sts-0">0–9%</span> Near 3-month RS low</div>
-      <div class="legend-item" style="margin-left:8px; color:#8b949e">RS_STS% = (today’s 1M RS − 3m min) / (3m max − 3m min) × 100</div>
+      <div class="legend-item"><span class="sts-badge sts-0">0–9%</span> Near 25d RS low</div>
+      <div class="legend-item" style="margin-left:8px; color:#8b949e">RS_STS% = (today's 1M RS − 25d min) / (25d max − 25d min) × 100</div>
       <div class="legend-item" style="margin-left:8px"><span class="legend-swatch" style="background:#58a6ff"></span> VARS bars</div>
       <div class="legend-item"><span class="legend-swatch" style="background:#e3b341;border-radius:0;height:2px;width:14px"></span> SMA20 line</div>
       <div class="legend-item" style="color:#8b949e">↕ Click any header to sort</div>
