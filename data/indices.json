@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-30 14:09 UTC",
+  "updated": "2026-06-01 00:03 UTC",
   "indices": [
     {
       "ticker": "^VIX",
@@ -246,7 +246,7 @@
           "m": 14.692
         },
         {
-          "v": 18.0551,
+          "v": 18.055,
           "m": 15.3039
         },
         {
@@ -788,23 +788,19 @@
     {
       "ticker": "DX-Y.NYB",
       "name": "US Dollar Index",
-      "price": 98.91,
-      "daily_chg": -0.1111,
-      "intraday_chg": -0.0909,
-      "chg_5d": -0.2823,
+      "price": 98.993,
+      "daily_chg": 0.0839,
+      "intraday_chg": 0.0364,
+      "chg_5d": -0.3292,
       "ema9": "below_down",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 0.0267,
+      "atr_multiple": 0.2445,
       "rs_rating": 50,
-      "rs_sts_pct": 59,
+      "rs_sts_pct": 89,
       "vars_history": [
-        {
-          "v": -0.7206,
-          "m": -0.114
-        },
         {
           "v": -0.474,
           "m": -0.2162
@@ -880,6 +876,10 @@
         {
           "v": 0.0112,
           "m": -0.242
+        },
+        {
+          "v": 0.0989,
+          "m": -0.201
         }
       ]
     },
@@ -3832,23 +3832,19 @@
     {
       "ticker": "SOL-USD",
       "name": "Solana",
-      "price": 82.35,
-      "daily_chg": 0.5096,
-      "intraday_chg": 0.5111,
-      "chg_5d": -3.1296,
+      "price": 82.46,
+      "daily_chg": -0.1058,
+      "intraday_chg": -0.1123,
+      "chg_5d": -1.3477,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "below_down",
       "sma200": "below_down",
-      "atr_multiple": -1.4824,
-      "rs_rating": 24,
+      "atr_multiple": -1.478,
+      "rs_rating": 23,
       "rs_sts_pct": 0,
       "vars_history": [
-        {
-          "v": 11.7704,
-          "m": 1.7318
-        },
         {
           "v": 8.6473,
           "m": 2.1133
@@ -3922,31 +3918,31 @@
           "m": 1.2146
         },
         {
-          "v": -4.0596,
-          "m": 0.4581
+          "v": -3.8662,
+          "m": 0.4677
+        },
+        {
+          "v": -3.9037,
+          "m": -0.316
         }
       ]
     },
     {
       "ticker": "BTC-USD",
       "name": "Bitcoin",
-      "price": 73817.5234,
-      "daily_chg": 0.6065,
-      "intraday_chg": 0.6112,
-      "chg_5d": -4.4803,
+      "price": 73664.3984,
+      "daily_chg": -0.1226,
+      "intraday_chg": -0.1228,
+      "chg_5d": -2.8504,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "below_down",
       "sma200": "below_down",
-      "atr_multiple": -1.9809,
-      "rs_rating": 42,
-      "rs_sts_pct": 1,
+      "atr_multiple": -2.1398,
+      "rs_rating": 41,
+      "rs_sts_pct": 0,
       "vars_history": [
-        {
-          "v": 7537.1119,
-          "m": 6478.7173
-        },
         {
           "v": 6095.0545,
           "m": 6418.7496
@@ -4020,31 +4016,31 @@
           "m": 1759.1811
         },
         {
-          "v": -3404.475,
-          "m": 1177.687
+          "v": -3465.9088,
+          "m": 1174.6154
+        },
+        {
+          "v": -3568.5488,
+          "m": 619.3323
         }
       ]
     },
     {
       "ticker": "ETH-USD",
       "name": "Ethereum",
-      "price": 2019.8199,
-      "daily_chg": 0.3897,
-      "intraday_chg": 0.3966,
-      "chg_5d": -4.3361,
+      "price": 2008.13,
+      "daily_chg": -0.561,
+      "intraday_chg": -0.551,
+      "chg_5d": -3.0291,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "below_down",
       "sma200": "below_down",
-      "atr_multiple": -3.3092,
-      "rs_rating": 29,
-      "rs_sts_pct": 4,
+      "atr_multiple": -3.5853,
+      "rs_rating": 27,
+      "rs_sts_pct": 0,
       "vars_history": [
-        {
-          "v": 98.836,
-          "m": 118.5906
-        },
         {
           "v": 31.6687,
           "m": 109.2248
@@ -4118,8 +4114,12 @@
           "m": -102.4643
         },
         {
-          "v": -227.4129,
-          "m": -120.5472
+          "v": -227.7673,
+          "m": -120.5649
+        },
+        {
+          "v": -233.5504,
+          "m": -137.1843
         }
       ]
     }
