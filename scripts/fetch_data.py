@@ -10,7 +10,7 @@ from pathlib import Path
 OUTPUT_FILE = Path("data/indices.json")
 OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-# ── Ticker definitions ────────────────────────────────────────────────────
+# Ticker definitions
 
 INDICES = [
     {"ticker": "^VIX",     "name": "CBOE Volatility Index"},
@@ -168,7 +168,6 @@ THEMATIC = [
 ]
 
 
-# ── RS universe: Fred6724's live CSV ─────────────────────────────────────
 RS_CSV_URL = "https://raw.githubusercontent.com/Fred6724/rs-log/main/output/rs_stocks.csv"
 
 _FALLBACK_CURVE = [
@@ -182,8 +181,10 @@ _FALLBACK_CURVE = [
 def _curve_rating(score):
     xs = [p[0] for p in _FALLBACK_CURVE]
     ys = [p[1] for p in _FALLBACK_CURVE]
-    if score <= xs[0]:  return ys[0]
-    if score >= xs[-1]: return ys[-1]
+    if score <= xs[0]:
+        return ys[0]
+    if score >= xs[-1]:
+        return ys[-1]
     for i in range(len(xs) - 1):
         if xs[i] <= score <= xs[i+1]:
             t = (score - xs[i]) / (xs[i+1] - xs[i])
@@ -206,17 +207,7 @@ def fetch_rs_scores_array():
     return None
 
 
-# ── RS Score helpers ──────────────────────────────────────────────────────
-
 def compute_rs_score(close, period=22):
-    """
-    RS Rating base score - now aligned to a 22-trading-day (~1 month)
-    lookback, matching RS_STS%'s window instead of the old
-    quarterly-weighted (63/126/189/252-day) formula.
-
-    Score = (close[-1] / close[-period]) * 100
-    Requires at least period+1 bars of price history.
-    """
     if len(close) < period + 1:
         return None
     return float((close.iloc[-1] / close.iloc[-period]) * 100)
@@ -226,7 +217,7 @@ def score_to_rating(score, scores_array):
     if score is None:
         return None
     if scores_array is not None:
-        n    = len(scores_array)
+        n = len(scores_array)
         rank = int(np.searchsorted(scores_array, score, side="left"))
         return max(1, min(99, round((rank / n) * 100)))
     return _curve_rating(score)
@@ -240,18 +231,7 @@ def compute_1m_rs_score(close, bars_back=0):
 
 
 def compute_rs_sts_pct(close, lookback=22):
-    """
-    RS_STS% — Dr Yong Yang tweak to Jeff Sun's spreadsheet.
-    Lookback = 22 bars (Jeff Sun's setting).
-
-    RS_STS% = (today's 1M RS - min of window) / (max of window - min of window) * 100
-
-    100% = today's 1M RS is the highest in the 22-day lookback window (strongest)
-      0% = today's 1M RS is the lowest in the 22-day lookback window
-    Requires at least 22 + 22 = 44 bars of price history.
-    Returns an integer 0-100, or None if insufficient data.
-    """
-    required = 22 + lookback  # 22 + 22 = 44 bars minimum
+    required = 22 + lookback
     if len(close) < required:
         return None
 
@@ -275,8 +255,6 @@ def compute_rs_sts_pct(close, lookback=22):
     return max(0, min(100, round(pct)))
 
 
-# ── MA / ATR helpers ──────────────────────────────────────────────────────
-
 def ma_status(price, ma_val, ma_prev):
     if price >= ma_val:
         return "above_up" if ma_val >= ma_prev else "above_down"
@@ -288,11 +266,9 @@ def ema(series, period):
     return series.ewm(span=period, adjust=False).mean()
 
 
-# ── Core per-ticker calculation ───────────────────────────────────────────
-
 def compute_row(ticker_def, hist, rs_scores):
     ticker = ticker_def["ticker"]
-    name   = ticker_def["name"]
+    name = ticker_def["name"]
 
     close = hist["Close"].dropna()
     open_ = hist["Open"].dropna()
@@ -301,33 +277,33 @@ def compute_row(ticker_def, hist, rs_scores):
         print(f"  {ticker}: not enough data ({len(close)} bars)")
         return None
 
-    price        = round(float(close.iloc[-1]), 4)
-    prev_close   = float(close.iloc[-2])
-    daily_chg    = round((price / prev_close - 1) * 100, 4)
-    last_open    = float(open_.iloc[-1]) if len(open_) > 0 else None
+    price = round(float(close.iloc[-1]), 4)
+    prev_close = float(close.iloc[-2])
+    daily_chg = round((price / prev_close - 1) * 100, 4)
+    last_open = float(open_.iloc[-1]) if len(open_) > 0 else None
     intraday_chg = round((price / last_open - 1) * 100, 4) if last_open else None
-    chg_5d       = round((price / float(close.iloc[-6]) - 1) * 100, 4) if len(close) >= 6 else None
+    chg_5d = round((price / float(close.iloc[-6]) - 1) * 100, 4) if len(close) >= 6 else None
 
-    ema9_s   = ema(close, 9)
-    ema9_st  = ma_status(price, float(ema9_s.iloc[-1]),  float(ema9_s.iloc[-2]))  if len(ema9_s)  >= 2 else None
-    ema21_s  = ema(close, 21)
+    ema9_s = ema(close, 9)
+    ema9_st = ma_status(price, float(ema9_s.iloc[-1]), float(ema9_s.iloc[-2])) if len(ema9_s) >= 2 else None
+    ema21_s = ema(close, 21)
     ema21_st = ma_status(price, float(ema21_s.iloc[-1]), float(ema21_s.iloc[-2])) if len(ema21_s) >= 2 else None
-    ema50_s  = ema(close, 50)
+    ema50_s = ema(close, 50)
     ema50_st = ma_status(price, float(ema50_s.iloc[-1]), float(ema50_s.iloc[-2])) if len(ema50_s) >= 2 else None
 
     sma50_val = None
     if len(close) >= 51:
-        sma50_s   = close.rolling(50).mean()
+        sma50_s = close.rolling(50).mean()
         sma50_val = float(sma50_s.iloc[-1])
 
     sma150_st = None
     if len(close) >= 151:
-        sma150_s  = close.rolling(150).mean()
+        sma150_s = close.rolling(150).mean()
         sma150_st = ma_status(price, float(sma150_s.iloc[-1]), float(sma150_s.iloc[-2]))
 
     sma200_st = None
     if len(close) >= 201:
-        sma200_s  = close.rolling(200).mean()
+        sma200_s = close.rolling(200).mean()
         sma200_st = ma_status(price, float(sma200_s.iloc[-1]), float(sma200_s.iloc[-2]))
 
     atr_mult = None
@@ -335,47 +311,44 @@ def compute_row(ticker_def, hist, rs_scores):
         try:
             high = hist["High"].dropna()
             low_ = hist["Low"].dropna()
-            tr   = pd.concat([
+            tr = pd.concat([
                 high - low_,
                 (high - close.shift(1)).abs(),
                 (low_ - close.shift(1)).abs()
             ], axis=1).max(axis=1)
-            atr14    = float(tr.rolling(14).mean().iloc[-1])
+            atr14 = float(tr.rolling(14).mean().iloc[-1])
             atr_mult = round((price - sma50_val) / atr14, 4) if atr14 else None
         except Exception:
             atr_mult = None
 
-    rs_score   = compute_rs_score(close, period=22)
-    rs_rating  = score_to_rating(rs_score, rs_scores)
+    rs_score = compute_rs_score(close, period=22)
+    rs_rating = score_to_rating(rs_score, rs_scores)
     rs_sts_pct = compute_rs_sts_pct(close, lookback=22)
 
     return {
-        "ticker":       ticker,
-        "name":         name,
-        "price":        price,
-        "daily_chg":    daily_chg,
+        "ticker": ticker,
+        "name": name,
+        "price": price,
+        "daily_chg": daily_chg,
         "intraday_chg": intraday_chg,
-        "chg_5d":       chg_5d,
-        "ema9":         ema9_st,
-        "ema21":        ema21_st,
-        "ema50":        ema50_st,
-        "sma150":       sma150_st,
-        "sma200":       sma200_st,
+        "chg_5d": chg_5d,
+        "ema9": ema9_st,
+        "ema21": ema21_st,
+        "ema50": ema50_st,
+        "sma150": sma150_st,
+        "sma200": sma200_st,
         "atr_multiple": atr_mult,
-        "rs_rating":    rs_rating,
-        "rs_sts_pct":   rs_sts_pct,
+        "rs_rating": rs_rating,
+        "rs_sts_pct": rs_sts_pct,
     }
 
-
-# ── Download + process one section ───────────────────────────────────────
 
 def process_section(ticker_defs, rs_scores):
     rows = []
     for td in ticker_defs:
         sym = td["ticker"]
         try:
-            hist = yf.download(sym, period="2y", interval="1d",
-                               auto_adjust=True, progress=False)
+            hist = yf.download(sym, period="2y", interval="1d", auto_adjust=True, progress=False)
             if hist is None or hist.empty:
                 print(f"  {sym}: no data returned")
                 continue
@@ -384,4 +357,44 @@ def process_section(ticker_defs, rs_scores):
             row = compute_row(td, hist, rs_scores)
             if row:
                 rows.append(row)
-                rs_str
+                rs_str = str(row["rs_rating"]) if row["rs_rating"] is not None else "N/A"
+                sts_str = str(row["rs_sts_pct"]) + "%" if row["rs_sts_pct"] is not None else "N/A"
+                print(f"  {sym}  RS:{rs_str}  STS:{sts_str}")
+        except Exception as e:
+            print(f"  {sym}: {e}")
+    return rows
+
+
+def main():
+    print("=" * 55)
+    print("  Market Dashboard - fetch_data.py")
+    print(f"  Run: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}")
+    print("=" * 55)
+
+    print("-- RS universe (Fred6724) --")
+    rs_scores = fetch_rs_scores_array()
+
+    sections = {
+        "indices": INDICES,
+        "sectors": SECTORS,
+        "sectors_ew": SECTORS_EW,
+        "commodities": COMMODITIES,
+        "thematic": THEMATIC,
+    }
+
+    output = {"updated": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")}
+
+    for section_name, ticker_defs in sections.items():
+        print(f"-- {section_name.upper()} ({len(ticker_defs)} tickers) --")
+        output[section_name] = process_section(ticker_defs, rs_scores)
+        print(f"   {len(output[section_name])} rows written")
+
+    with open(OUTPUT_FILE, "w") as f:
+        json.dump(output, f, indent=2)
+
+    total = sum(len(v) for v in output.values() if isinstance(v, list))
+    print(f"Done  {OUTPUT_FILE}  ({total} total rows)")
+
+
+if __name__ == "__main__":
+    main()
