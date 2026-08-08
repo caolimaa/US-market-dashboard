@@ -236,19 +236,19 @@ def compute_1m_rs_score(close, bars_back=0):
     return float((c.iloc[-1] / c.iloc[-22]) * 100)
 
 
-def compute_rs_sts_pct(close, lookback=25):
+def compute_rs_sts_pct(close, lookback=22):
     """
     RS_STS% — Dr Yong Yang tweak to Jeff Sun's spreadsheet.
-    Lookback = 25 bars (Jeff Sun's setting).
+    Lookback = 22 bars (Jeff Sun's setting).
 
     RS_STS% = (today's 1M RS - min of window) / (max of window - min of window) * 100
 
-    100% = today's 1M RS is the highest in the 25-day lookback window (strongest)
-      0% = today's 1M RS is the lowest in the 25-day lookback window
-    Requires at least 22 + 25 = 47 bars of price history.
+    100% = today's 1M RS is the highest in the 22-day lookback window (strongest)
+      0% = today's 1M RS is the lowest in the 22-day lookback window
+    Requires at least 22 + 22 = 44 bars of price history.
     Returns an integer 0-100, or None if insufficient data.
     """
-    required = 22 + lookback  # 22 + 25 = 47 bars minimum
+    required = 22 + lookback  # 22 + 22 = 44 bars minimum
     if len(close) < required:
         return None
 
@@ -283,22 +283,6 @@ def ma_status(price, ma_val, ma_prev):
 
 def ema(series, period):
     return series.ewm(span=period, adjust=False).mean()
-
-
-def vars_histogram(close, window=20, lookback=50):
-    if len(close) < lookback + window:
-        return []
-    sma_lb = close.rolling(lookback).mean()
-    hist   = close - sma_lb
-    sma20  = hist.rolling(20).mean()
-    result = []
-    for i in range(-window, 0):
-        v = hist.iloc[i]
-        m = sma20.iloc[i]
-        if pd.isna(v) or pd.isna(m):
-            continue
-        result.append({"v": round(float(v), 4), "m": round(float(m), 4)})
-    return result
 
 
 # ── Core per-ticker calculation ───────────────────────────────────────────
@@ -358,10 +342,9 @@ def compute_row(ticker_def, hist, rs_scores):
         except Exception:
             atr_mult = None
 
-    vars_hist  = vars_histogram(close, window=20, lookback=50) if len(close) >= 70 else []
     rs_score   = compute_rs_score(close)
     rs_rating  = score_to_rating(rs_score, rs_scores)
-    rs_sts_pct = compute_rs_sts_pct(close, lookback=25)
+    rs_sts_pct = compute_rs_sts_pct(close, lookback=22)
 
     return {
         "ticker":       ticker,
@@ -378,7 +361,6 @@ def compute_row(ticker_def, hist, rs_scores):
         "atr_multiple": atr_mult,
         "rs_rating":    rs_rating,
         "rs_sts_pct":   rs_sts_pct,
-        "vars_history": vars_hist,
     }
 
 
