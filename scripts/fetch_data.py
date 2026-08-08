@@ -208,15 +208,18 @@ def fetch_rs_scores_array():
 
 # ── RS Score helpers ──────────────────────────────────────────────────────
 
-def compute_rs_score(close):
-    if len(close) < 253:
+def compute_rs_score(close, period=22):
+    """
+    RS Rating base score - now aligned to a 22-trading-day (~1 month)
+    lookback, matching RS_STS%'s window instead of the old
+    quarterly-weighted (63/126/189/252-day) formula.
+
+    Score = (close[-1] / close[-period]) * 100
+    Requires at least period+1 bars of price history.
+    """
+    if len(close) < period + 1:
         return None
-    return float(
-        (0.4 * (close.iloc[-1] / close.iloc[-63])
-       + 0.2 * (close.iloc[-1] / close.iloc[-126])
-       + 0.2 * (close.iloc[-1] / close.iloc[-189])
-       + 0.2 * (close.iloc[-1] / close.iloc[-252])) * 100
-    )
+    return float((close.iloc[-1] / close.iloc[-period]) * 100)
 
 
 def score_to_rating(score, scores_array):
@@ -342,7 +345,7 @@ def compute_row(ticker_def, hist, rs_scores):
         except Exception:
             atr_mult = None
 
-    rs_score   = compute_rs_score(close)
+    rs_score   = compute_rs_score(close, period=22)
     rs_rating  = score_to_rating(rs_score, rs_scores)
     rs_sts_pct = compute_rs_sts_pct(close, lookback=22)
 
@@ -381,46 +384,4 @@ def process_section(ticker_defs, rs_scores):
             row = compute_row(td, hist, rs_scores)
             if row:
                 rows.append(row)
-                rs_str  = str(row["rs_rating"])  if row["rs_rating"]  is not None else "N/A"
-                sts_str = str(row["rs_sts_pct"]) + "%" if row["rs_sts_pct"] is not None else "N/A"
-                print(f"  {sym}  RS:{rs_str}  STS:{sts_str}")
-        except Exception as e:
-            print(f"  {sym}: {e}")
-    return rows
-
-
-# ── Main ──────────────────────────────────────────────────────────────────
-
-def main():
-    print("=" * 55)
-    print("  Market Dashboard - fetch_data.py")
-    print(f"  Run: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}")
-    print("=" * 55)
-
-    print("\n-- RS universe (Fred6724) --")
-    rs_scores = fetch_rs_scores_array()
-
-    sections = {
-        "indices":     INDICES,
-        "sectors":     SECTORS,
-        "sectors_ew":  SECTORS_EW,
-        "commodities": COMMODITIES,
-        "thematic":    THEMATIC,
-    }
-
-    output = {"updated": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")}
-
-    for section_name, ticker_defs in sections.items():
-        print(f"\n-- {section_name.upper()} ({len(ticker_defs)} tickers) --")
-        output[section_name] = process_section(ticker_defs, rs_scores)
-        print(f"   {len(output[section_name])} rows written")
-
-    with open(OUTPUT_FILE, "w") as f:
-        json.dump(output, f, indent=2)
-
-    total = sum(len(v) for v in output.values() if isinstance(v, list))
-    print(f"\nDone  {OUTPUT_FILE}  ({total} total rows)")
-
-
-if __name__ == "__main__":
-    main()
+                rs_str
