@@ -1,21 +1,21 @@
 {
-  "updated": "2026-09-21 00:48 UTC",
+  "updated": "2026-09-22 01:24 UTC",
   "indices": [
     {
       "ticker": "^VIX",
       "name": "CBOE Volatility Index",
-      "price": 14.81,
-      "daily_chg": -4.0803,
-      "intraday_chg": -1.7253,
-      "chg_5d": -6.5025,
+      "price": 14.87,
+      "daily_chg": 0.4051,
+      "intraday_chg": -0.6016,
+      "chg_5d": -13.0409,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "below_down",
       "sma200": "below_down",
-      "atr_multiple": -0.8845,
-      "rs_rating": 43,
-      "rs_sts_pct": 43
+      "atr_multiple": -0.8703,
+      "rs_rating": 48,
+      "rs_sts_pct": 54
     },
     {
       "ticker": "IWM",
@@ -132,18 +132,18 @@
     {
       "ticker": "DX-Y.NYB",
       "name": "US Dollar Index",
-      "price": 100.246,
-      "daily_chg": 0.0259,
+      "price": 100.411,
+      "daily_chg": 0.1906,
       "intraday_chg": -0.006,
-      "chg_5d": 0.7903,
+      "chg_5d": 0.9562,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 0.6983,
-      "rs_rating": 51,
-      "rs_sts_pct": 99
+      "atr_multiple": 1.0435,
+      "rs_rating": 52,
+      "rs_sts_pct": 100
     },
     {
       "ticker": "ARKK",
@@ -164,18 +164,18 @@
     {
       "ticker": "^TNX",
       "name": "US 10Y Treasury Yield",
-      "price": 4.998,
-      "daily_chg": 1.0309,
-      "intraday_chg": 0.3614,
-      "chg_5d": 0.4623,
+      "price": 4.963,
+      "daily_chg": -0.7003,
+      "intraday_chg": 0.2019,
+      "chg_5d": 0.0403,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 4.3598,
-      "rs_rating": 57,
-      "rs_sts_pct": 100
+      "atr_multiple": 3.6961,
+      "rs_rating": 56,
+      "rs_sts_pct": 77
     }
   ],
   "sectors": [
@@ -634,50 +634,50 @@
     {
       "ticker": "SOL-USD",
       "name": "Solana",
-      "price": 112.82,
-      "daily_chg": 1.626,
-      "intraday_chg": 1.5072,
-      "chg_5d": 16.4433,
+      "price": 117.67,
+      "daily_chg": 5.8822,
+      "intraday_chg": -0.9244,
+      "chg_5d": 19.2901,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 4.6656,
-      "rs_rating": 61,
-      "rs_sts_pct": 36
+      "atr_multiple": 5.0469,
+      "rs_rating": 64,
+      "rs_sts_pct": 43
     },
     {
       "ticker": "BTC-USD",
       "name": "Bitcoin",
-      "price": 81820.2891,
-      "daily_chg": 0.7221,
-      "intraday_chg": 0.8109,
-      "chg_5d": 8.21,
+      "price": 85602.4609,
+      "daily_chg": 5.4963,
+      "intraday_chg": -1.1494,
+      "chg_5d": 12.4125,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 4.2217,
-      "rs_rating": 55,
-      "rs_sts_pct": 31
+      "atr_multiple": 5.0738,
+      "rs_rating": 59,
+      "rs_sts_pct": 42
     },
     {
       "ticker": "ETH-USD",
       "name": "Ethereum",
-      "price": 2702.3701,
-      "daily_chg": 2.6751,
-      "intraday_chg": 2.1768,
-      "chg_5d": 12.6416,
+      "price": 2745.3701,
+      "daily_chg": 3.8733,
+      "intraday_chg": -1.1021,
+      "chg_5d": 13.6272,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 4.3292,
-      "rs_rating": 62,
-      "rs_sts_pct": 41
+      "atr_multiple": 4.3413,
+      "rs_rating": 61,
+      "rs_sts_pct": 39
     }
   ],
   "thematic": [
@@ -1100,18 +1100,18 @@
     {
       "ticker": "SPPP",
       "name": "Platinum & Palladium",
-      "price": 14.5,
-      "daily_chg": 1.8974,
-      "intraday_chg": -0.2751,
-      "chg_5d": 0.2073,
+      "price": 14.48,
+      "daily_chg": -0.1379,
+      "intraday_chg": -1.7639,
+      "chg_5d": 2.1157,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "below_down",
       "sma200": "below_down",
-      "atr_multiple": 1.1715,
-      "rs_rating": 50,
-      "rs_sts_pct": 8
+      "atr_multiple": 1.0494,
+      "rs_rating": 49,
+      "rs_sts_pct": 5
     },
     {
       "ticker": "XBI",
