@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-03 01:41 UTC",
+  "updated": "2026-10-05 01:32 UTC",
   "indices": [
     {
       "ticker": "^VIX",
@@ -132,18 +132,18 @@
     {
       "ticker": "DX-Y.NYB",
       "name": "US Dollar Index",
-      "price": 101.924,
-      "daily_chg": -0.1724,
-      "intraday_chg": -0.0902,
-      "chg_5d": 0.9448,
+      "price": 102.0,
+      "daily_chg": 0.0687,
+      "intraday_chg": 0.0814,
+      "chg_5d": 0.7905,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 4.1647,
-      "rs_rating": 52,
-      "rs_sts_pct": 98
+      "atr_multiple": 4.3594,
+      "rs_rating": 53,
+      "rs_sts_pct": 100
     },
     {
       "ticker": "ARKK",
@@ -634,50 +634,50 @@
     {
       "ticker": "SOL-USD",
       "name": "Solana",
-      "price": 119.43,
-      "daily_chg": 0.8718,
-      "intraday_chg": 0.6921,
-      "chg_5d": -2.1536,
+      "price": 121.18,
+      "daily_chg": 1.2829,
+      "intraday_chg": -0.2947,
+      "chg_5d": 1.7845,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 3.6256,
-      "rs_rating": 66,
-      "rs_sts_pct": 88
+      "atr_multiple": 3.5542,
+      "rs_rating": 69,
+      "rs_sts_pct": 100
     },
     {
       "ticker": "BTC-USD",
       "name": "Bitcoin",
-      "price": 84623.5234,
-      "daily_chg": -0.2706,
-      "intraday_chg": 0.1387,
-      "chg_5d": 0.1959,
+      "price": 86734.2969,
+      "daily_chg": 2.325,
+      "intraday_chg": 0.2554,
+      "chg_5d": 3.7213,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 3.1013,
-      "rs_rating": 60,
-      "rs_sts_pct": 90
+      "atr_multiple": 3.3163,
+      "rs_rating": 63,
+      "rs_sts_pct": 100
     },
     {
       "ticker": "ETH-USD",
       "name": "Ethereum",
-      "price": 2680.9099,
-      "daily_chg": -0.9103,
-      "intraday_chg": 0.4762,
-      "chg_5d": -0.2239,
-      "ema9": "below_down",
+      "price": 2724.77,
+      "daily_chg": 1.396,
+      "intraday_chg": -0.0717,
+      "chg_5d": 1.795,
+      "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 2.7224,
-      "rs_rating": 57,
-      "rs_sts_pct": 59
+      "atr_multiple": 2.8391,
+      "rs_rating": 60,
+      "rs_sts_pct": 78
     }
   ],
   "thematic": [
@@ -1109,7 +1109,7 @@
       "ema50": "below_down",
       "sma150": "below_down",
       "sma200": "below_down",
-      "atr_multiple": -2.4001,
+      "atr_multiple": -2.4025,
       "rs_rating": 41,
       "rs_sts_pct": 4
     },
