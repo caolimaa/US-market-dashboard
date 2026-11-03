@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-03 02:58 UTC",
+  "updated": "2026-11-03 03:29 UTC",
   "indices": [
     {
       "ticker": "^VIX",
@@ -132,16 +132,16 @@
     {
       "ticker": "DX-Y.NYB",
       "name": "US Dollar Index",
-      "price": 101.842,
-      "daily_chg": -0.0373,
-      "intraday_chg": 0.1091,
-      "chg_5d": -0.1157,
+      "price": 101.839,
+      "daily_chg": -0.0402,
+      "intraday_chg": 0.1062,
+      "chg_5d": -0.1187,
       "ema9": "below_down",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 2.1016,
+      "atr_multiple": 2.0952,
       "rs_rating": 50,
       "rs_sts_pct": 3
     },
@@ -634,50 +634,50 @@
     {
       "ticker": "SOL-USD",
       "name": "Solana",
-      "price": 91.71,
-      "daily_chg": -2.9058,
-      "intraday_chg": -0.1364,
-      "chg_5d": -10.3585,
+      "price": 91.78,
+      "daily_chg": -2.8317,
+      "intraday_chg": -0.0602,
+      "chg_5d": -10.2901,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": -4.8375,
+      "atr_multiple": -4.8038,
       "rs_rating": 37,
-      "rs_sts_pct": 21
+      "rs_sts_pct": 22
     },
     {
       "ticker": "BTC-USD",
       "name": "Bitcoin",
-      "price": 76623.8125,
-      "daily_chg": -2.0763,
-      "intraday_chg": -0.0783,
-      "chg_5d": -5.7142,
+      "price": 76698.1484,
+      "daily_chg": -1.9813,
+      "intraday_chg": 0.0186,
+      "chg_5d": -5.6227,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": -2.735,
+      "atr_multiple": -2.6855,
       "rs_rating": 44,
-      "rs_sts_pct": 11
+      "rs_sts_pct": 12
     },
     {
       "ticker": "ETH-USD",
       "name": "Ethereum",
-      "price": 2249.49,
-      "daily_chg": -1.0366,
-      "intraday_chg": 0.0103,
-      "chg_5d": -4.5866,
+      "price": 2245.9299,
+      "daily_chg": -1.1932,
+      "intraday_chg": -0.148,
+      "chg_5d": -4.7376,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "above_up",
       "sma200": "above_down",
-      "atr_multiple": -3.5666,
+      "atr_multiple": -3.6099,
       "rs_rating": 42,
-      "rs_sts_pct": 63
+      "rs_sts_pct": 62
     }
   ],
   "thematic": [
