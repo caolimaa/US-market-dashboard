@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-24 06:08 UTC",
+  "updated": "2026-11-24 07:06 UTC",
   "indices": [
     {
       "ticker": "^VIX",
@@ -132,18 +132,18 @@
     {
       "ticker": "DX-Y.NYB",
       "name": "US Dollar Index",
-      "price": 104.296,
-      "daily_chg": -0.023,
-      "intraday_chg": -0.0115,
-      "chg_5d": 0.7788,
+      "price": 104.359,
+      "daily_chg": 0.0374,
+      "intraday_chg": 0.0489,
+      "chg_5d": 0.8397,
       "ema9": "above_up",
       "ema21": "above_up",
       "ema50": "above_up",
       "sma150": "above_up",
       "sma200": "above_up",
-      "atr_multiple": 4.1125,
+      "atr_multiple": 4.2046,
       "rs_rating": 52,
-      "rs_sts_pct": 94
+      "rs_sts_pct": 96
     },
     {
       "ticker": "ARKK",
@@ -634,50 +634,50 @@
     {
       "ticker": "SOL-USD",
       "name": "Solana",
-      "price": 71.56,
-      "daily_chg": 1.4028,
-      "intraday_chg": -0.5851,
-      "chg_5d": -2.8019,
+      "price": 71.74,
+      "daily_chg": -0.3359,
+      "intraday_chg": -0.335,
+      "chg_5d": -1.8147,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
-      "sma150": "below_down",
+      "sma150": "below_up",
       "sma200": "below_down",
-      "atr_multiple": -5.1557,
-      "rs_rating": 28,
-      "rs_sts_pct": 40
+      "atr_multiple": -4.6383,
+      "rs_rating": 27,
+      "rs_sts_pct": 37
     },
     {
       "ticker": "BTC-USD",
       "name": "Bitcoin",
-      "price": 60389.2109,
-      "daily_chg": -1.2634,
-      "intraday_chg": -1.3428,
-      "chg_5d": -4.1247,
+      "price": 60425.8711,
+      "daily_chg": -1.2826,
+      "intraday_chg": -1.2829,
+      "chg_5d": -2.3843,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "below_up",
       "sma200": "below_down",
-      "atr_multiple": -4.9199,
-      "rs_rating": 29,
-      "rs_sts_pct": 12
+      "atr_multiple": -4.5963,
+      "rs_rating": 28,
+      "rs_sts_pct": 9
     },
     {
       "ticker": "ETH-USD",
       "name": "Ethereum",
-      "price": 1698.26,
-      "daily_chg": -1.3257,
-      "intraday_chg": -0.6198,
-      "chg_5d": -4.3099,
+      "price": 1698.04,
+      "daily_chg": -0.6327,
+      "intraday_chg": -0.6326,
+      "chg_5d": -3.256,
       "ema9": "below_down",
       "ema21": "below_down",
       "ema50": "below_down",
       "sma150": "below_up",
       "sma200": "below_down",
-      "atr_multiple": -4.7212,
-      "rs_rating": 26,
-      "rs_sts_pct": 12
+      "atr_multiple": -4.4944,
+      "rs_rating": 25,
+      "rs_sts_pct": 9
     }
   ],
   "thematic": [
